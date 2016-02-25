@@ -1,7 +1,7 @@
 traits
 =====================
 
-* java_cpp
-  java c++ mixed programming.
+#### java_cpp
+java c++ mixed programming.
 
 
