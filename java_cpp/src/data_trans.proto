@@ -1,0 +1,15 @@
+package Data;
+option java_package = "com.traits";
+option java_outer_classname = "Data";
+
+message Query {
+  required int32 num = 1;
+  required string data = 2;
+}
+
+message Result {
+  required int32 num = 1;
+  required string data = 2;
+}
+
+

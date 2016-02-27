@@ -1,0 +1,4 @@
+*.class
+*.o
+*.pyc
+java_cpp/bin/

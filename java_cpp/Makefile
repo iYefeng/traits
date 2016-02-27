@@ -14,7 +14,7 @@ ARFLAGS=
 CFLAGS=-Wall -I$(INC)
 CXXFLAGS=
 
-.PHONY: all clean
+.PHONY: all clean protoc
 
 all:$(TARGET)
 
@@ -33,6 +33,9 @@ $(TARGET):$(OBJS)
 %.o:%.cpp
 	@echo "compile " $@
 	$(CXX) -c $(CPPFLAGS)  $< -o $@
+
+protoc:
+	protoc --cpp_out=./ --java_out=src/javacpp/src/main/java --python_out=src/python src/data_trans.proto
 
 clean:
 	rm $(TARGET) $(OBJS)
