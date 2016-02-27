@@ -1,4 +1,5 @@
 *.class
 *.o
 *.pyc
+*.swp
 java_cpp/bin/
