@@ -5,8 +5,7 @@ import com.traits.Data.*;
 
 public class Sample1 
 {
-  public native int intMethod(int n
-);
+  public native int intMethod(int n);
   public native byte[] pbMethod(byte[] pb);
 
   public static void main(String[] args) throws InvalidProtocolBufferException {
@@ -23,6 +22,10 @@ public class Sample1
     byte[] query_byte = query.toByteArray();
 
     byte[] ret_buf = sample.pbMethod(query_byte);
+    
+    //System.out.println(ret_buf.length);
+    //System.out.println(query_byte.length);
+
     Result result = Result.parseFrom(ret_buf);
     System.out.println("pbMethod: num: " + result.getNum());
     System.out.println("pbMethod: data: " + result.getData());

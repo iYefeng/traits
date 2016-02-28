@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jint JNICALL Java_com_traits_Sample1_intMethod
   (JNIEnv *, jobject, jint);
 
+/*
+ * Class:     com_traits_Sample1
+ * Method:    pbMethod
+ * Signature: ([B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_traits_Sample1_pbMethod
+  (JNIEnv *, jobject, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

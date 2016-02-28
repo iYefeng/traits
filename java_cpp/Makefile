@@ -33,7 +33,7 @@ define print_status
 	@echo -e $(BLUE)  $(1) $(YELLOW)"["$(2)"]"$(CLEAR)
 endef
 
-.PHONY: all clean protoc
+.PHONY: all clean protoc java_target
 
 all:$(TARGET1) $(TARGET2) $(TARGET3)
 
@@ -41,9 +41,17 @@ $(TARGET1): src/test.o
 	$(call print_status, "build",$@)
 	$(CC) -o  $@ $^
 
-$(TARGET2): src/com_traits_Sample1.o
+$(TARGET2): src/com_traits_Sample1.o src/data_trans.pb.o
 	$(call print_status, "build",$@)
-	$(CC) -o $@ $^ -fPIC -shared
+	$(CC) -o $@ $^ -shared -lprotobuf
+
+src/com_traits_Sample1.o: src/com_traits_Sample1.cc
+	$(call print_status, "compile",$@)
+	$(CC) -c $(CFLAGS) $(CXXFLAGS) -fPIC $< -o $@
+
+src/data_trans.pb.o: src/data_trans.pb.cc
+	$(call print_status, "compile",$@)
+	$(CC) -c $(CFLAGS) $(CXXFLAGS) -fPIC $< -o $@
 
 $(TARGET3): src/json_test.o
 	$(call print_status, "build",$@)
@@ -64,5 +72,11 @@ $(TARGET3): src/json_test.o
 protoc:
 	protoc --cpp_out=./ --java_out=src/javacpp/src/main/java --python_out=src/python src/data_trans.proto
 
+java_target:
+	@cd src/javacpp; mvn clean compile package; cp target/javacpp-1.0-SNAPSHOT.jar ../../bin; cp target/lib/* ../../jars
+
+java_target_test:
+	@cd bin; java -cp javacpp-1.0-SNAPSHOT.jar:../jars/* com.traits.Sample1
+
 clean:
-	rm $(TARGET1) $(TARGET2) $(TARGET3) src/test.o src/com_traits_Sample1.o src/json_test.o
+	rm $(TARGET1) $(TARGET2) $(TARGET3) src/test.o src/com_traits_Sample1.o src/json_test.o src/data_trans.pb.o
