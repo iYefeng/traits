@@ -3,3 +3,4 @@
 *.pyc
 *.swp
 java_cpp/bin/
+java_cpp/thirdparty/
