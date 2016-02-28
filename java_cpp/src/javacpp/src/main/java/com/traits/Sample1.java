@@ -1,8 +1,11 @@
 package com.traits;
+import com.traits.Data
 
 public class Sample1 
 {
-  public native int intMethod(int n);
+  public native int intMethod(int n
+);
+  public native String[] pbMethod(String[] pb);
 
   public static void main(String[] args)
   {
