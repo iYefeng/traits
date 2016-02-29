@@ -19,6 +19,6 @@ This folder contains some useful algorithms for programming.
 15. priority queue
 ...
 
-reference
+### Reference
 http://www.cnblogs.com/huangxincheng/default.html?page=8 
 
