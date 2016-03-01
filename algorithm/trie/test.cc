@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
   printf("%ld\n", t.sizeNoneRedundant(t.root));
 
   t.printTrie(t.root);
+  printf("\n");
   
   t.erase("你好");
   t.erase("你好");
@@ -52,5 +53,6 @@ int main(int argc, char *argv[])
   printf("%ld\n", t.sizeAll(t.root));
   printf("%ld\n", t.sizeNoneRedundant(t.root));
   t.printTrie(t.root);
+  printf("\n");
   return 0;
 }

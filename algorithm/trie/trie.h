@@ -36,7 +36,6 @@ class trie {
 
     void insert(const char *str);
     bool find(const char *str);
-    bool downNodeAlone(pNode node);
     bool erase(const char *str);
     long sizeAll(pNode node);
     long sizeNoneRedundant(pNode node);
@@ -60,20 +59,20 @@ void trie::insert(const char *str)
     iter = cur->next.find(key);
     if (iter == cur->next.end()) {
       cur->next.insert(pair<long, pNode>(key, new Node));
-      ++cur->nodeSize;
     }
     pre = cur;
     iter = cur->next.find(key);
     cur = iter->second;
+    ++cur->nodeSize;
   }
-  ++pre->terminableSize;
+  ++cur->terminableSize;
 }
 
 bool trie::find(const char *str)
 {
   wchar_t wc[1024] = {'\0'};
   pNode cur = root;
-  pNode pre;
+  //pNode pre;
   mbstowcs(wc, str, strlen(str));
   int len = wcslen(wc);
   long key;
@@ -84,54 +83,40 @@ bool trie::find(const char *str)
     if (iter == cur->next.end()) {
       return false;
     }
-    pre = cur;
+    //pre = cur;
     cur = iter->second;
   }
-  if (pre->terminableSize > 0)
-    return true;
-  return false;
-}
-
-bool trie::downNodeAlone(pNode node)
-{
-  pNode cur = node;
-  int terminableSum = 0;
-  while (cur->nodeSize != 0) {
-    terminableSum += cur->terminableSize;
-    if (cur->nodeSize > 1)
-      return false;
-    else {
-      cur = (cur->next.begin())->second;
-    }
-  }
-  if (terminableSum == 1)
+  if (cur->terminableSize > 0)
     return true;
   return false;
 }
 
 bool trie::erase(const char *str) 
 {
+  printf("i_want_to_erase_%s\n", str);
   wchar_t wc[1024] = {'\0'};
   mbstowcs(wc, str, strlen(str));
   int len = wcslen(wc);
   if (find(str)) {
-    printf("erase %s\n", str);
+    printf("erasing_ %s\n", str);
     pNode cur = root;
     pNode pre;
     map<long, pNode>::iterator iter;
     int len = wcslen(wc);
     for (int i = 0; i < len; ++i) {
-      if (downNodeAlone(cur)) {
-        printf("delete %s\n", str);
-        delete cur;
-        return true;
-      }
       iter = cur->next.find(wc[i]);
       pre = cur;
       cur = iter->second;
+      --cur->nodeSize;
+      if (cur->nodeSize == 0) {
+        printf("delete %s\n", str);
+        delete cur;
+        (pre->next).erase(iter);
+        return true;
+      }
     }
-    if (pre->terminableSize > 0) 
-      --pre->terminableSize;
+    if (cur->terminableSize > 0) 
+      --cur->terminableSize;
     return true;
   }
   return false;
