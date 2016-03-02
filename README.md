@@ -10,3 +10,6 @@ Zeus is a scheduler which schedules jobs according on time and their dependent t
 
 #### algorithm
 Some implements for famous algorithms.
+
+#### python
+Some python code for pratice.
