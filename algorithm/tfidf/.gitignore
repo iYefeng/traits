@@ -1,4 +1,5 @@
 bin/
+conf/friso.ini
 data/
 dict/
 thirdparty/friso-1.6.0/
