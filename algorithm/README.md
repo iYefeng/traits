@@ -17,7 +17,7 @@ This folder contains some useful algorithms for programming.
 13. AC automation（Aho-Corasick automation）
 14. kmp
 15. priority queue
-16. crt
+16. crf (Conditional random field algorithm)
 <br />...
 
 ### Reference
