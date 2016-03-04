@@ -17,7 +17,8 @@ This folder contains some useful algorithms for programming.
 13. AC automation（Aho-Corasick automation）
 14. kmp
 15. priority queue
-...
+16. crt
+<br />...
 
 ### Reference
 http://www.cnblogs.com/huangxincheng/default.html?page=8 
