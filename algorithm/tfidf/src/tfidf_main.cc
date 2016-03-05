@@ -2,11 +2,12 @@
 #include <stdlib.h> 
 #include <getopt.h> //getopt_long()头文件位置 
 #include <string.h>
+#include "version.h"
 
 const char *__HELP__ = 
 " tf-idf\n"
 " Author: yefeng\n"
-" Date: 2016-03-05\n"
+" Date: "__DATE__"\n"
 "\n"
 " Usage: %s [options]\n"
 " Options:\n"
@@ -18,6 +19,12 @@ const char *__HELP__ =
 " -h,          --help            Help information\n"
 " -v,          --version         Show version\n"
 "              --debug\n";
+
+const char *__ABOUT__ = 
+" TF-IDF\n"
+" Author:   Yefeng\n"
+" Date:     "__TIME__" "__DATE__"\n"
+" Version:  "VERSION_NUMBER"\n"; 
 
 typedef struct configura {
   char input[256];
@@ -34,6 +41,11 @@ typedef struct configura {
 void print_help(const char *name)
 {
   fprintf(stderr, __HELP__, name);
+}
+
+void print_version()
+{
+  printf("%s", __ABOUT__);
 }
 
 void parse_option(configura &conf, int argc, char ** argv)
@@ -117,7 +129,7 @@ int run_tfidf(configura &conf, int argc, char **argv)
     exit(0);
   }
   if (conf.has_version) {
-    printf(" TF-IDF \n Author:yefeng\n Version: 0.0.1\n");
+    print_version();
     exit(0);
   }
   switch (conf.mode) {
