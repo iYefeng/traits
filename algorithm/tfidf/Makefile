@@ -1,6 +1,7 @@
 SHELL=/bin/bash
 
 TARGET1=bin/test.exe
+TARGET2=bin/tfidf_main.exe
 
 #SRCS=$(filter %.cc, $(shell ls src/*))
 #OBJS=$(patsubst %.cc, %.o, $(SRCS))
@@ -32,9 +33,13 @@ endef
 
 .PHONY: all clean compile_thirdparty
 
-all: $(TARGET1)
+all: $(TARGET1) ${TARGET2}
 
 $(TARGET1): src/tst-friso.o
+	$(call print_status, "build",$@)
+	$(CXX) -static $^ ${LIBS} -o $@
+
+${TARGET2}: src/tfidf_main.o
 	$(call print_status, "build",$@)
 	$(CXX) -static $^ ${LIBS} -o $@
 
