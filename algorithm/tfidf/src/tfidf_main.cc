@@ -109,13 +109,13 @@ void parse_option(configura &conf, int argc, char ** argv)
 }
 
 
-int tfidf_train(configura &conf)
+int run_train(configura &conf)
 {
   printf("running train mode...\n");
   return 0; 
 }
 
-int tfidf_forecast(configura &conf)
+int run_forecast(configura &conf)
 {
   printf("running forecast mode...\n");
   return 0; 
@@ -145,7 +145,7 @@ int run_tfidf(configura &conf, int argc, char **argv)
       if (0 == flag) {
         exit(-1);
       }
-      tfidf_forecast(conf);
+      run_forecast(conf);
       break;
     case 0:
       if (0 == strlen(conf.input)) {
@@ -155,7 +155,7 @@ int run_tfidf(configura &conf, int argc, char **argv)
       if (0 == flag) {
         exit(-1);
       }
-      tfidf_train(conf);
+      run_train(conf);
       break;
     case -1:
       printf("please choose mode: train or forecast\n");
