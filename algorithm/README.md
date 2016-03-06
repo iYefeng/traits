@@ -23,4 +23,4 @@ This folder contains some useful algorithms for programming.
 
 ### Reference
 http://www.cnblogs.com/huangxincheng/default.html?page=8 
-
+https://github.com/Blei-Lab/lda-c
