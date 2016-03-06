@@ -7,3 +7,4 @@ java_cpp/bin/
 java_cpp/thirdparty/
 java_cpp/src/javacpp/target/
 algorithm/tfidf/data/
+algorithm/lda/data/
