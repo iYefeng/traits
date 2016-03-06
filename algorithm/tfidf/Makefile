@@ -43,6 +43,10 @@ ${TARGET2}: src/tfidf_main.o
 	$(call print_status, "build",$@)
 	$(CXX) -static $^ ${LIBS} -o $@
 
+src/tfidf_main.o: src/tfidf_main.cc src/tfidf.h
+	$(call print_status, "compile",$@)
+	$(CC) -c $(CFLAGS) $< -o $@
+
 %.o:%.c
 	$(call print_status, "compile",$@)
 	$(CC) -c $(CFLAGS) $< -o $@

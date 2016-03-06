@@ -1,8 +1,23 @@
-#include <stdio.h> 
+#include <stdio.h>
+#include <iostream>
 #include <stdlib.h> 
 #include <getopt.h> //getopt_long()头文件位置 
 #include <string.h>
 #include "version.h"
+#include "tfidf.h"
+#include <fstream>
+#include <string>
+#include <time.h>
+#include <algorithm>
+
+using namespace std;
+
+typedef pair<string, double> PAIR;
+
+int cmp(const PAIR &x, const PAIR &y)
+{
+  return x.second > y.second;
+}
 
 const char *__HELP__ = 
 " tf-idf\n"
@@ -26,29 +41,17 @@ const char *__ABOUT__ =
 " Date:     "__TIME__" "__DATE__"\n"
 " Version:  "VERSION_NUMBER"\n"; 
 
-typedef struct configura {
-  char input[256];
-  char output[256];
-  char data[256];
-  char conf[256];
-  int mode;          // 0: train; 1:forecast
-  int has_help;
-  int has_version;
-  int has_debug;
-  int is_err;
-} configura;
-
-void print_help(const char *name)
+void tfidf_help(const char *name)
 {
   fprintf(stderr, __HELP__, name);
 }
 
-void print_version()
+void tfidf_version()
 {
   printf("%s", __ABOUT__);
 }
 
-void parse_option(configura &conf, int argc, char ** argv)
+void parse_option(configure &conf, int argc, char ** argv)
 {
   const char *optstring="i:o:m:d:c:u:hv";
   int c, deb, index;
@@ -88,48 +91,94 @@ void parse_option(configura &conf, int argc, char ** argv)
           conf.mode = -1;
         break;
       case 'v': //-v 或者--version,输出版本号
-        conf.has_version = 1;
+        conf.hasVersion = 1;
         break;
       case 'h':
-        conf.has_help = 1;
+        conf.hasHelp = 1;
         break;
       case 0:   //flag不为NULL
-        conf.has_debug = 1;
+        conf.hasDebug = 1;
         break;
       case '?': //选项未定义
         fprintf(stderr, "ERROR: unknown command\n");
-        conf.has_help = 1;
+        conf.hasHelp = 1;
         break;
       default:
         fprintf(stderr, "ERROR: unknown command\n");
-        conf.has_help = 1;
+        conf.hasHelp = 1;
         break;
     }
   }
 }
 
-
-int run_train(configura &conf)
+int run_train(configure &conf)
 {
+  clock_t s_time, e_time;
   printf("running train mode...\n");
+  s_time = clock();
+  // FIXME: move the conf to conf file.
+  strcpy(conf.frisoPath, "conf/friso.ini");
+  strcpy(conf.data, "data/idf.dat");
+  tfidf t(conf);
+  fstream fin(conf.input);
+  string readLine;
+  while (getline(fin, readLine)) {
+    t.train(readLine);
+  }
+  fin.close();
+  printf("Saving the middle file in %s ...\n", conf.data);
+  t.save_middle_data();
+  e_time = clock();
+  printf("Finished training in %fsec\n", (double) ( e_time - s_time ) / CLOCKS_PER_SEC );
+  
   return 0; 
 }
 
-int run_forecast(configura &conf)
+int run_forecast(configure &conf)
 {
-  printf("running forecast mode...\n");
+  clock_t s_time, e_time;
+  // FIXME: move the conf to conf file.
+  strcpy(conf.frisoPath, "conf/friso.ini");
+  strcpy(conf.data, "data/idf.dat");
+  tfidf t(conf);
+  printf("Running forecast mode...\n");
+  s_time = clock();
+  printf("Loading the middle data from %s\n", conf.data);
+  t.load_middle_data();
+  fstream fin(conf.input);
+  string readLine;
+  while (getline(fin, readLine)) {
+    map<string, double> result;
+    vector<PAIR> pair_vec;
+    t.forecast(readLine, result);
+    for (map<string, double>::iterator rit = result.begin(); rit != result.end(); ++rit) {
+      //printf("%s\t%lf\n", rit->first.c_str(), rit->second);
+      pair_vec.push_back(make_pair(rit->first, rit->second));
+    }
+    sort(pair_vec.begin(), pair_vec.end(), cmp);
+    // FIXME: output result to file or stdout
+    for (vector<PAIR>::iterator curr = pair_vec.begin(); 
+          curr != pair_vec.end(); ++curr) {  
+      printf("%s\t%lf\n", curr->first.c_str(), curr->second);
+    } 
+    printf("================\n");
+  }
+  fin.close();
+
+  e_time = clock();
+  printf("Finished forecasting in %fsec\n", (double) ( e_time - s_time ) / CLOCKS_PER_SEC );
   return 0; 
 }
 
-int run_tfidf(configura &conf, int argc, char **argv)
+int run_tfidf(configure &conf, int argc, char **argv)
 {
   int flag = 1;
-  if (conf.has_help) {
-    print_help(argv[0]);
+  if (conf.hasHelp) {
+    tfidf_help(argv[0]);
     exit(0);
   }
-  if (conf.has_version) {
-    print_version();
+  if (conf.hasVersion) {
+    tfidf_version();
     exit(0);
   }
   switch (conf.mode) {
@@ -168,8 +217,8 @@ int run_tfidf(configura &conf, int argc, char **argv)
 
 int main(int argc, char** argv)
 {
-  configura conf = {
-    "", "", "", "conf/tfidf.ini", -1, 0, 0, 0
+  configure conf = {
+    "", "", "", "conf/tfidf.ini", "", -1, 0, 0, 0
   };
 
   parse_option(conf, argc, argv);
