@@ -13,3 +13,7 @@ Some implements for famous algorithms.
 
 #### python
 Some python code for pratice.
+
+#### data_stroage
+a deom of no-sql database 
+
