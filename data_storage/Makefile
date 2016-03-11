@@ -2,15 +2,12 @@ SHELL=/bin/bash
 
 TARGET1=bin/server.exe
 TARGET2=bin/client.exe
-TARGET1_SRC=src/CppServer.cpp 
-TARGET2_SRC=src/CppClient.cpp
+TARGET1_SRC=src/DsServer_server.cpp 
+TARGET2_SRC=src/DsServer_client.cpp
 
-OTHER_SRC = gen-cpp/Calculator.cpp \
-			 			 gen-cpp/SharedService.cpp \
-						 gen-cpp/shared_constants.cpp \
-			 			 gen-cpp/shared_types.cpp \
-			 			 gen-cpp/tutorial_constants.cpp \
-			 			 gen-cpp/tutorial_types.cpp
+OTHER_SRC = gen-cpp/DsServer.cpp \
+						gen-cpp/dss_constants.cpp \
+			 			gen-cpp/dss_types.cpp
 
 TARGET1_OBJ=$(patsubst %.cpp, %.o, ${TARGET1_SRC})
 TARGET2_OBJ=$(patsubst %.cpp, %.o, ${TARGET2_SRC})
@@ -28,7 +25,10 @@ LIBS=-lssl \
 		 -lthriftnb \
 		 -lthriftz \
 		 -levent \
-		 -lkyotocabinet
+		 -lkyotocabinet \
+		 -lz \
+		 -lm \
+		 -lc
 LDFLAGS=-L./
 ARFLAGS=
 CFLAGS=-Wall $(INC)
@@ -61,9 +61,9 @@ ${TARGET2}: ${TARGET2_OBJ} ${OTHER_OBJ}
 	$(call print_status, "build",$@)
 	$(CXX) $^ ${LIBS} -o $@
 
-thrift_compile: src/tutorial.thrift
+thrift_compile: src/dss.thrift
 	$(call print_status, "thrift",$@)
-	thrift --gen cpp -r $<
+	thrift --gen cpp:cob_style -r $<
 
 %.o:%.c
 	$(call print_status, "compile",$@)
@@ -78,7 +78,7 @@ thrift_compile: src/tutorial.thrift
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS)  $< -o $@
 
 clean:
-	rm ${TARGET1} ${TARGET1_OBJ} 
+	rm ${TARGET1} ${TARGET1_OBJ} ${TARGET2} ${TARGET2_OBJ} ${OTHER_OBJ}
 
 
 

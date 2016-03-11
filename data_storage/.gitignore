@@ -1,3 +1,4 @@
 bin/
 back/
 gen-cpp/
+*.kct
