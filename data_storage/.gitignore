@@ -1,4 +1,5 @@
 bin/
 back/
 gen-cpp/
+gen-py/
 *.kct
