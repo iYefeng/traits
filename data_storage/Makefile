@@ -64,6 +64,7 @@ ${TARGET2}: ${TARGET2_OBJ} ${OTHER_OBJ}
 thrift_compile: src/dss.thrift
 	$(call print_status, "thrift",$@)
 	thrift --gen cpp:cob_style -r $<
+	thrift --gen py -r $<
 
 %.o:%.c
 	$(call print_status, "compile",$@)

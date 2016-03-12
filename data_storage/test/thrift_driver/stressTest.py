@@ -20,7 +20,11 @@ class StressTest:
     q = TaskQueue(self.num_workers)
     
     def task(*args, **kwargs):
-      test = self.cls(self.host, self.port)
+      try:
+        test = self.cls(self.host, self.port)
+      except Exception, e:
+        print "Error:", e
+        sys.exit(-1)
       while(1):
         self.cnt += 1
         if q.is_exit == True:

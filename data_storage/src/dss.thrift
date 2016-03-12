@@ -36,8 +36,8 @@ service DsServer {
   string get(1:string key),
   list<string> getm(1:list<string> keys),
   
-  oneway void put(1:request req),
-  oneway void putm(1:list<request> reqs),
+  void put(1:request req),
+  void putm(1:list<request> reqs),
   
   string status()
 }
