@@ -18,7 +18,7 @@ This folder contains some useful algorithms for programming.
 14. kmp
 15. priority queue
 16. crf (Conditional random fields algorithm)
-17. cfr (Collaborative  filtering recommendation)
+17. cf (Collaborative filtering)
     <br />...
 
 ### Reference
