@@ -98,13 +98,13 @@ class RecommendByUser(object):
     for k in recommend_list:
       if k[1] not in set(user_items):
         recommend_item.append(k[1])
-    return recommend_item[:ic], user_items
+    return recommend_item[:ic], user_items, nearestNeighbors
 
 if __name__ == "__main__":
   rate_file = "../data/ml-100k/u.data"
   item_file = "../data/ml-100k/u.item"
   cf = RecommendByUser(rate_file, item_file)
-  recommend_list, user_items = cf.recommend('50', 100, 20)
+  recommend_list, user_items, nearestNeighbors = cf.recommend('50', 100, 20)
   item_info = cf.getItemInfo()
   table = Texttable()  
   table.set_deco(Texttable.HEADER)  
