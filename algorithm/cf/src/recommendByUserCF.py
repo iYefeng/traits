@@ -2,6 +2,7 @@
 
 import sys
 import math
+from texttable import Texttable
 
 class RecommendByUser(object):
 
@@ -26,8 +27,9 @@ class RecommendByUser(object):
     itemUser = {}
     data = self.readFile(filename)
     for line in data:
-      k = line.split("\t")
-      user_rank = (k[1], int(k[2]))
+      tmp = line.split("\t")
+      k = (tmp[0], tmp[1], int(tmp[2]))
+      user_rank = (k[1], k[2])
       if k[0] in userDict:
         userDict[k[0]].append(user_rank)
       else:
@@ -92,17 +94,28 @@ class RecommendByUser(object):
       recommend_list.append([val, key])
     recommend_list.sort(reverse = True)
     user_items = [k[0] for k in self.userDict_[userId]]
-    recommend_item = [k[1] for k in recommend_list]
+    recommend_item = []
+    for k in recommend_list:
+      if k[1] not in set(user_items):
+        recommend_item.append(k[1])
     return recommend_item[:ic], user_items
 
 if __name__ == "__main__":
   rate_file = "../data/ml-100k/u.data"
   item_file = "../data/ml-100k/u.item"
   cf = RecommendByUser(rate_file, item_file)
-  recommend_list, user_items = cf.recommend('1', 5, 20)
+  recommend_list, user_items = cf.recommend('50', 100, 20)
   item_info = cf.getItemInfo()
+  table = Texttable()  
+  table.set_deco(Texttable.HEADER)  
+  table.set_cols_dtype(['t', 't', 't'])  
+  table.set_cols_align(["l", "l", "l"])
+  rows = []
+  rows.append([u"movie name",u"release", u"from userid"])
   for item_id in recommend_list:
-    print item_info[item_id][0], item_info[item_id][1]
+    rows.append([item_info[item_id][0], item_info[item_id][1], ""])
+  table.add_rows(rows)
+  print table.draw()
 
 
 
