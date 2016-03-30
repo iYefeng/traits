@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import math
-import numpy as np
+from numpy import *
 import random
 
 class Svm:
@@ -29,20 +29,20 @@ class Svm:
     return aj
 
   def smo(self, C, toler, maxIter):
-    dataMat = np.mat(self.data_)
-    labelMat = np.mat(self.label_)
+    dataMat = mat(self.data_)
+    labelMat = mat(self.label_).transpose()
     self.b_ = 0
     m,n = shape(dataMat)
-    self.alphas_ = np.mat(np.zeros((m, 1)))
+    self.alphas_ = mat(zeros((m, 1)))
     cnt = 0
     while (cnt < maxIter):
       alphaPairsChanged = 0
       for i in range(m):
-        fXi = float(np.multiply(self.alphas_, labelMat).T * (dataMat * dataMat[i,:].T)) + self.b_
+        fXi = float(multiply(self.alphas_, labelMat).T * (dataMat * dataMat[i,:].T)) + self.b_
         Ei = fXi - float(labelMat[i])
         if ((labelMat[i]*Ei) < -toler and (self.alphas_[i] < C)) or ((labelMat[i] * Ei > toler) and (self.alphas_[i] > 0)):
-          j = selectRand(i, m)
-          fXj = float(np.multiply(self.alphas_, labelMat).T * (dataMat*dataMat[j, :].T)) + self.b_
+          j = self.selectRand(i, m)
+          fXj = float(multiply(self.alphas_, labelMat).T * (dataMat*dataMat[j, :].T)) + self.b_
           Ej = fXj - float(labelMat[j])
           alphaIold = self.alphas_[i].copy()
           alphaJold = self.alphas_[j].copy()
@@ -56,9 +56,9 @@ class Svm:
           eta = 2.0 * dataMat[i,:]*dataMat[j,:].T - dataMat[i,:]*dataMat[i,:].T - dataMat[j,:]*dataMat[j,:].T
           if eta >= 0: print "eta>=0"; continue
           self.alphas_[j] -= labelMat[j]*(Ei-Ej)/eta
-          self.alphas_[j] = clipAlpha(self.alphas_[j], H, L)
+          self.alphas_[j] = self.clipAlpha(self.alphas_[j], H, L)
           if (abs(self.alphas_[j] - alphaJold) < 0.00001): print "j not moving enough"; continue
-          alphas[i] += labelMat[j]*labelMat[i]*(alphaJold - alphas[j])
+          self.alphas_[i] += labelMat[j]*labelMat[i]*(alphaJold - self.alphas_[j])
           b1 = self.b_ - Ei- labelMat[i]*(self.alphas_[i]-alphaIold)*dataMat[i,:]*dataMat[i,:].T - labelMat[j]*(self.alphas_[j]-alphaJold)*dataMat[i,:]*dataMat[j,:].T
           b2 = self.b_ - Ej- labelMat[i]*(self.alphas_[i]-alphaIold)*dataMat[i,:]*dataMat[j,:].T - labelMat[j]*(self.alphas_[j]-alphaJold)*dataMat[j,:]*dataMat[j,:].T
           if (0 < self.alphas_[i]) and (C > self.alphas_[i]): self.b_ = b1
@@ -71,5 +71,9 @@ class Svm:
       print "iteration number: %d" % cnt
     return self.b_, self.alphas_
 
-
+if __name__ == "__main__":
+  svm = Svm()
+  svm.loadDataSet("../data/testSet.txt")
+  b, alpha = svm.smo(0.6, 0.001, 40)
+  print alpha[alpha>0]
 
