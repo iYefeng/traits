@@ -7,13 +7,13 @@ import random
 class Svm:
   
   def loadDataSet(self, filename):
-    self.dataMat_ = []
-    self.labelMat_ = []
+    self.data_ = []
+    self.label_ = []
     with open(filename, "r") as f:
       for line in f:
         tmp = line.strip("\n").split("\t")
-        self.dataMat_.append([float(k) for k in tmp[:-1]])
-        self.labelMat_.append(float(tmp[-1]))
+        self.data_.append([float(k) for k in tmp[:-1]])
+        self.label_.append(float(tmp[-1]))
 
   def selectRand(self, i, m):
     j = i
@@ -28,4 +28,48 @@ class Svm:
       aj = L
     return aj
 
-  def smo(self)
+  def smo(self, C, toler, maxIter):
+    dataMat = np.mat(self.data_)
+    labelMat = np.mat(self.label_)
+    self.b_ = 0
+    m,n = shape(dataMat)
+    self.alphas_ = np.mat(np.zeros((m, 1)))
+    cnt = 0
+    while (cnt < maxIter):
+      alphaPairsChanged = 0
+      for i in range(m):
+        fXi = float(np.multiply(self.alphas_, labelMat).T * (dataMat * dataMat[i,:].T)) + self.b_
+        Ei = fXi - float(labelMat[i])
+        if ((labelMat[i]*Ei) < -toler and (self.alphas_[i] < C)) or ((labelMat[i] * Ei > toler) and (self.alphas_[i] > 0)):
+          j = selectRand(i, m)
+          fXj = float(np.multiply(self.alphas_, labelMat).T * (dataMat*dataMat[j, :].T)) + self.b_
+          Ej = fXj - float(labelMat[j])
+          alphaIold = self.alphas_[i].copy()
+          alphaJold = self.alphas_[j].copy()
+          if (labelMat[i] != labelMat[j]):
+            L = max(0, self.alphas_[j] - self.alphas_[i])
+            H = min(C, C + self.alphas_[j] - self.alphas_[i])
+          else:
+            L = max(0, self.alphas_[j] + self.alphas_[i] - C)
+            H = min(C, self.alphas_[j] + self.alphas_[i])
+          if L == H: print "L==H"; continue
+          eta = 2.0 * dataMat[i,:]*dataMat[j,:].T - dataMat[i,:]*dataMat[i,:].T - dataMat[j,:]*dataMat[j,:].T
+          if eta >= 0: print "eta>=0"; continue
+          self.alphas_[j] -= labelMat[j]*(Ei-Ej)/eta
+          self.alphas_[j] = clipAlpha(self.alphas_[j], H, L)
+          if (abs(self.alphas_[j] - alphaJold) < 0.00001): print "j not moving enough"; continue
+          alphas[i] += labelMat[j]*labelMat[i]*(alphaJold - alphas[j])
+          b1 = self.b_ - Ei- labelMat[i]*(self.alphas_[i]-alphaIold)*dataMat[i,:]*dataMat[i,:].T - labelMat[j]*(self.alphas_[j]-alphaJold)*dataMat[i,:]*dataMat[j,:].T
+          b2 = self.b_ - Ej- labelMat[i]*(self.alphas_[i]-alphaIold)*dataMat[i,:]*dataMat[j,:].T - labelMat[j]*(self.alphas_[j]-alphaJold)*dataMat[j,:]*dataMat[j,:].T
+          if (0 < self.alphas_[i]) and (C > self.alphas_[i]): self.b_ = b1
+          elif (0 < self.alphas_[j]) and (C > self.alphas_[j]): self.b_ = b2
+          else: self.b_ = (b1 + b2)/2.0
+          alphaPairsChanged += 1
+          print "iter: %d i:%d, pairs changed %d" % (cnt,i,alphaPairsChanged)
+      if (alphaPairsChanged == 0): cnt += 1
+      else: cnt = 0
+      print "iteration number: %d" % cnt
+    return self.b_, self.alphas_
+
+
+
