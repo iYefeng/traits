@@ -19,6 +19,8 @@ This folder contains some useful algorithms for programming.
 15. priority queue
 16. crf (Conditional random fields algorithm)
 17. cf (Collaborative filtering)
+18. gdbt (Gradient Boosting Decision Tree)
+19. random forest
     <br />...
 
 ### Reference
