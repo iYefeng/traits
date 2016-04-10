@@ -14,13 +14,13 @@ This folder contains some useful algorithms for programming.
 10. B tree
 11. AVL tree
 12. qsort
-13. AC automation（Aho-Corasick automation）
+13. AC automation (Aho-Corasick automation)
 14. kmp
 15. priority queue
 16. crf (Conditional random fields algorithm)
 17. cf (Collaborative filtering)
-18. gdbt (Gradient Boosting Decision Tree)
-19. random forest
+18. gbdt (Gradient Boosting Decision Tree)
+19. rf (random forest)
     <br />...
 
 ### Reference
