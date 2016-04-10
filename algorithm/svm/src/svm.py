@@ -48,7 +48,7 @@ class Svm:
   
   def calcEk(self, k):
     fXk = float(multiply(self.alphas_, self.labelMat_).T * \
-        (self.dataMat_*self.dataMat_[k,:].T) + self.b_)
+        self.K_[:,k] + self.b_)
     Ek = fXk - float(self.labelMat_[k])
     return Ek
   
@@ -61,7 +61,7 @@ class Svm:
   def selectJ(self, i, Ei):
     maxK = -1; maxDeltaE = 0; Ej = 0
     self.eCache_[i] = [1, Ei]
-    validEcacheList = nonzero(self.eCache[:,0].A)[0]
+    validEcacheList = nonzero(self.eCache_[:,0].A)[0]
     if (len(validEcacheList)) > 1:
       for k in validEcacheList:
         if k == i: continue
@@ -81,13 +81,59 @@ class Svm:
 
   def innerL(self, i):
     Ei = self.calcEk(i)
+    if ((self.labelMat_[i]*Ei < -self.toler_) and (self.alphas_[i] < self.C_)) or ((self.labelMat_[i]*Ei > self.toler_) and (self.alphas_[i] > 0)):
+      j,Ej = self.selectJ(i, Ei)
+      alphaIold = self.alphas_[i].copy()
+      alphaJold = self.alphas_[j].copy()
+      if (self.labelMat_[i] != self.labelMat_[j]):
+        L = max(0, self.alphas_[j] - self.alphas_[i])
+        H = min(self.C_, self.C_ + self.alphas_[j] - self.alphas_[i])
+      else:
+        L = max(0, self.alphas_[j] + self.alphas_[i] - self.C_)
+        H = min(self.C_, self.alphas_[j] + self.alphas_[i])
+      if L==H: print "L==H"; return 0
+      eta = 2.0 * self.K_[i,j] - self.K_[i,i] - self.K_[j,j]
+      if eta >= 0: print "eta>=0"; return 0
+      self.alphas_[j] -= self.labelMat_[j] * (Ei-Ej)/eta
+      self.alphas_[j] = self.clipAlpha(self.alphas_[j], H, L)
+      self.updateEk(j)
+      if (abs(self.alphas_[j] - alphaJold) < 0.00001): print "j not moving enough"; return 0
+      self.alphas_[i] += self.labelMat_[j]*self.labelMat_[i]*(alphaJold - self.alphas_[j])
+      self.updateEk(i)
+      b1 = self.b_ - Ei - self.labelMat_[i]*(self.alphas_[i]-alphaIold)*self.K_[i,i] - self.labelMat_[j]*(self.alphas_[j]-alphaJold)*self.K_[i,j]
+      b2 = self.b_ - Ej- self.labelMat_[i]*(self.alphas_[i]-alphaIold)*self.K_[i,j]- self.labelMat_[j]*(self.alphas_[j]-alphaJold)*self.K_[j,j]
+      if (0 < self.alphas_[i]) and (self.C_ > self.alphas_[i]): self.b_ = b1
+      elif (0 < self.alphas_[j]) and (self.C_ > self.alphas_[j]): self.b_ = b2
+      else: self.b_ = (b1 + b2)/2.0
+      return 1
+    else: return 0
 
-
-  def smoP(self, C, toler, maxIter, kTup=('lin', 0)):
+  def smoPlus(self, C, toler, maxIter, kTup=('lin', 0)):
+    self.C_ = C
+    self.toler_ = toler
     self.K_ = mat(zeros((self.m_, self.m_)))
+    self.kTup_ = kTup
     for i in range(self.m_):
-      self.K_[:,i] = self.kernel_.kernelTrans(self.dataMat_, self.dataMat_[i,:], kTup)
-
+      self.K_[:,i] = self.kernel_.kernelTrans(self.dataMat_, self.dataMat_[i,:], self.kTup_)
+    cnt = 0
+    entireSet = True; alphaPairsChanged = 0
+    while (cnt < maxIter) and ((alphaPairsChanged > 0) or (entireSet)):
+      alphaPairsChanged = 0
+      if entireSet:
+        for i in range(self.m_):
+          alphaPairsChanged += self.innerL(i)
+          print "fullSet, iter: %d i:%d, pairs changed %d" % (cnt,i,alphaPairsChanged)
+        cnt += 1
+      else:
+        nonBoundIs = nonzero((self.alphas_.A > 0) * (self.alphas_.A < C))[0]
+        for i in nonBoundIs:
+          alphaPairsChanged += self.innerL(i)
+          print "non-bound, iter: %d i:%d, pairs changed %d" % (cnt,i,alphaPairsChanged)
+        cnt += 1
+      if entireSet: entireSet = False
+      elif (alphaPairsChanged == 0): entireSet = True
+      print "iteration number: %d" % cnt
+    return self.b_, self.alphas_
 
   def smo(self, C, toler, maxIter):
     dataMat = mat(self.data_)
@@ -132,9 +178,25 @@ class Svm:
       print "iteration number: %d" % cnt
     return self.b_, self.alphas_
 
+  def test(self, testData, testLabel):
+    testData = mat(testData)
+    testLabel = mat(testLabel).T
+    svInd = nonzero(self.alphas_.A > 0)[0]
+    sVs = self.dataMat_[svInd]
+    svAlphas = self.alphas_[svInd]
+    svLabel = self.labelMat_[svInd]
+    errorCount = 0
+    m,n = shape(testData)
+    for i in range(m):
+      kernelEval = self.kernel_.kernelTrans(sVs, testData[i,:], self.kTup_)
+      predict = kernelEval.T * multiply(svLabel, svAlphas) + self.b_
+      if (sign(predict) != sign(testLabel[i])): errorCount += 1
+    print "the trainning error is: %f" % (float(errorCount) / m)
+
 if __name__ == "__main__":
   svm = Svm()
-  svm.loadDataSet("../data/testSet.txt")
-  b, alpha = svm.smo(0.6, 0.001, 40)
+  svm.loadDataSet("../data/testSetRBF.txt")
+  b, alpha = svm.smoPlus(0.6, 0.001, 40, ('rbf', 1.3))
   print alpha[alpha>0]
+  svm.test(svm.dataMat_, svm.labelMat_.T)
 
