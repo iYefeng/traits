@@ -2,6 +2,8 @@
 *.o
 *.pyc
 *.swp
+*.exe
+*.stackdump
 java_cpp/jars/
 java_cpp/bin/
 java_cpp/thirdparty/
