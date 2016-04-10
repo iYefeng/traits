@@ -21,8 +21,8 @@ class Svm:
 
   kernel_ = Kernel()
 
-  def setKernel(self, cls):
-    self.kernel_ = cls
+  def setKernel(self, clazz):
+    self.kernel_ = clazz()
   
   def loadDataSet(self, filename):
     _data = []
