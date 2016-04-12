@@ -8,19 +8,20 @@ This folder contains some useful algorithms for programming.
 4. word-vector
 5. lr
 6. svm[4]
-7. skip-list
-8. rad-black tree
-9. B+ tree
-10. B tree
-11. AVL tree
-12. qsort
-13. AC automation (Aho-Corasick automation)
-14. kmp
-15. priority queue
-16. crf (Conditional random fields algorithm)
-17. cf (Collaborative filtering)
-18. gbdt (Gradient Boosting Decision Tree)
-19. rf (random forest)
+7. binary search tree
+8. skiplist
+9. rad-black tree
+10. B+ tree
+11. B tree
+12. AVL tree
+13. qsort
+14. AC automation (Aho-Corasick automation)
+15. kmp
+16. priority queue
+17. crf (Conditional random fields algorithm)
+18. cf (Collaborative filtering)
+19. gbdt (Gradient Boosting Decision Tree)
+20. rf (random forest)
     <br />...
 
 ### Reference
