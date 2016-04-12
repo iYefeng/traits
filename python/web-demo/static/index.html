@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ngTable Examples</title>
+    <link rel="stylesheet" href="css/docs.css">
+    <link rel="stylesheet" href="css/social.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/ng-table.css">
+
+    <!--[if lt IE 9]>
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <![endif]-->
+    <script src="js/angular.js"></script>
+    <script src="js/angular-sanitize.js"></script>
+    <script src="js/angular-resource.js"></script>
+    <script src="js/angular-route.js"></script>
+    <script src="js/ng-table.js"></script>
+
+    <script src="js/angular-social.js"></script>
+    <script src="app/app.js"></script>
+
+    <script src="js/highlight.min.js"></script>
+</head>
+<body>
+    <div ng-app="myApp">
+      <div ng-controller="demoController as demo">
+        
+          <table ng-table="demo.tableParams" class="table table-condensed table-bordered table-striped">
+            <tr ng-repeat="issue in $data" ng-form="issueForm">
+              <td data-title="'Number'" sortable="'number'">
+                <a target="_blank" ng-href="{{issue.html_url}}">{{issue.number}}</a>
+              </td>
+              <td data-title="'Theme'" sortable="'title'" >{{issue.title}}</td>
+              <td data-title="'Opened by'">
+                <a target="_blank" ng-href="{{issue.user.url}}">
+                  <nobr><img width="16" height="16" ng-src="{{issue.user.avatar_url}}" /> {{issue.user.login}}
+                  </nobr>
+                </a>
+              </td>
+              <td data-title="'Updated'">
+                <nobr>{{issue.updated_at | date:'medium'}}</nobr>
+              </td>
+               <td data-title="'Edit'">
+            <button class="btn btn-primary btn-sm" ng-click="demo.save(issue, issueForm)" ng-if="issue.isEditing" ng-disabled="issueForm.$pristine || issueForm.$invalid"><span class="glyphicon glyphicon-ok"></span></button>
+            <button class="btn btn-default btn-sm" ng-click="demo.cancel(issue, issueForm)" ng-if="issue.isEditing"><span class="glyphicon glyphicon-remove"></span></button>
+            <button class="btn btn-default btn-sm" ng-click="issue.isEditing = true" ng-if="!issue.isEditing"><span class="glyphicon glyphicon-pencil"></span></button>
+            <button class="btn btn-danger btn-sm" ng-click="demo.del(issue)" ng-if="!issue.isEditing"><span class="glyphicon glyphicon-trash"></span></button>
+          </td>
+            </tr>
+          </table>
+      </div>
+    </div>
+</body>
