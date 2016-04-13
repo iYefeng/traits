@@ -17,6 +17,7 @@ angular.module("myApp", ["ngTable", "ngResource"]);
   });
 })();
 
+/*
 (function() {
   "use strict";
 
@@ -27,4 +28,4 @@ angular.module("myApp", ["ngTable", "ngResource"]);
     ngTableDefaults.params.count = 10;
     ngTableDefaults.settings.counts = [];
   }
-})();
+})();*/
