@@ -10,6 +10,55 @@
 using namespace std;
 using namespace std::tr1;
 
+std::wstring c2w(const char *pc)
+{
+  std::wstring val = L"";
+
+  if(NULL == pc)
+  {
+    return val;
+  }
+  //size_t size_of_ch = strlen(pc)*sizeof(char);
+  //size_t size_of_wc = get_wchar_size(pc);
+  size_t size_of_wc;
+  size_t destlen = mbstowcs(0,pc,0);
+  if (destlen ==(size_t)(-1))
+  {
+    return val;
+  }
+  size_of_wc = destlen+1;
+  wchar_t * pw  = new wchar_t[size_of_wc];
+  mbstowcs(pw,pc,size_of_wc);
+  val = pw;
+  delete pw;
+  return val;
+}
+
+std::string w2c(const wchar_t * pw)
+{
+  std::string val = "";
+  if(!pw)
+  {
+    return val;
+  }
+  size_t size= wcslen(pw)*sizeof(wchar_t);
+  char *pc = NULL;
+  if(!(pc = (char*)malloc(size)))
+  {
+    return val;
+  }
+  size_t destlen = wcstombs(pc,pw,size);
+  /*转换不为空时，返回值为-1。如果为空，返回值0*/
+  if (destlen ==(size_t)(-1))
+  {
+    delete pc;
+    return val;
+  }
+  val = pc;
+  delete pc;
+  return val;
+}
+
 class AcNode {
   public:
     AcNode(): terminableSize_(0), nodeSize_(0), patternTag_(0), \
