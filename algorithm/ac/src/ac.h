@@ -4,8 +4,11 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <queue>
 #include <tr1/memory>
 #include <string>
+#define DEBUG
+#include <assert.h>
 
 using namespace std;
 using namespace std::tr1;
@@ -98,11 +101,12 @@ class AC {
     int loadPattern(const vector<string> vStr);
     int buildTree();
     int insert(const char *str);
+    int nodeToQueue(pNode root, queue<pair<long, pNode>> &acQueue);
     int buildFailPath();
     int match(const string doc);
 
     pNode root_;
-    map<int, string> patternIdx_;
+    map<int, wstring> patternIdx_;
     int patternCnt_;
     vector<acResult> result_;
 };
@@ -111,7 +115,8 @@ int AC::loadPattern(const vector<string> vStr)
 {
   int size_t len = vStr.size();
   for (int i = 0; i < len; ++i) {
-    patternIdx_.insert(pair<int, string>(patternCnt_, vStr[i]));
+    wstring tmp = c2w(vStr[i]);
+    patternIdx_.insert(pair<int, wstring>(patternCnt_, tmp));
     ++patternCnt_;
   }
   return 0;  
@@ -119,12 +124,79 @@ int AC::loadPattern(const vector<string> vStr)
 
 int AC::buildTree()
 {
-  pNode tmp1 = NULL, tmp2 = NULL;
-  for (map<int, string>::iterator iter = patternIdx_.begin(); iter != patternIdx_.end(); ++iter) {
-    tmp1 = root;
-
+  pNode cur = NULL, pre = NULL;
+  long key;
+  map<long, pNode>::iterator idx;
+  pair<map<long, pNode>::iterator, bool> ret;
+  for (map<int, wstring>::iterator iter = patternIdx_.begin(); iter != patternIdx_.end(); ++iter) {
+    cur = root_;
+    for (size_t j = 0; j < iter->second.size(); ++j) {
+      key = (long) iter->second[j];
+      idx = cur->next_.find(key);
+      if (idx == cur->next_.end()) {
+        ret = cur->next_.insert(pair<long, pNode>(key, new Node));
+        if (ret.second) {
+          idx = ret.first;
+          idx->second->parent_ = cur;
+        }
+      }
+      assert(idx != cur->next_.end());
+      pre = cur;
+      cur = idx->second;
+      ++cur->nodeSize_;
+    }
+    ++cur->terminableSize_;
+    cur->patternTag_ = 1;
+    cur->patternNo_ = iter->first;
   }
+  return 0;
 }
+
+int nodeToQueue(pNode root, queue<pair<long, pNode>> &acQueue)
+{
+  map<long, AcNode*>::iterator iter;
+  for (iter = root->next_.begin(); iter != root->next_.end(); ++iter) {
+    acQueue.push(iter);
+  }
+  return 0;
+}
+
+int AC::buildFailPath()
+{
+  int i;
+  long key;
+  queue<pair<long, pNode>> acQueue;
+  map<long, pNode>::iterator iter;
+  root_->fail_ = root_;
+  for (iter = root_->next_.begin(); \
+        iter != root_.next_.end(); ++iter) {
+    nodeToQueue(iter.second, acQueue);
+    iter->second->fail_ = root_;
+  }
+  pNode tmp = NULL, parent = NULL;
+  while (!acQueue.empty()) {
+    tmp = acQueue.front();
+    acQueue.pop();
+    nodeToQueue(tmp.second, acQueue);
+    key = tmp.first;
+    parent = tmp->parent_;
+    while (true) {
+      iter = parent->fail_->next_.find(key);
+      if (iter != parent->fail_->next_.end()) {
+        tmp->fail_ = iter.second;
+        break;
+      } else {
+        if (parent->fail_ == root_) {
+          tmp->fail_ = root_;
+          break;
+        } else
+          parent = parent->fail_->parent_;
+      }
+    }
+  }
+  return 0;
+}
+
 
 
 #endif // __AC_H__
