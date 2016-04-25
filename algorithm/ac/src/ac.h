@@ -101,7 +101,7 @@ class AC {
     int loadPattern(const vector<string> vStr);
     int buildTree();
     int insert(const char *str);
-    int nodeToQueue(pNode root, queue<pair<long, pNode>> &acQueue);
+    int nodeToQueue(pNode root, queue< pair<long, pNode> > &acQueue);
     int buildFailPath();
     int match(const string doc);
 
@@ -152,7 +152,7 @@ int AC::buildTree()
   return 0;
 }
 
-int nodeToQueue(pNode root, queue<pair<long, pNode>> &acQueue)
+int AC::nodeToQueue(pNode root, queue< pair<long, pNode> > &acQueue)
 {
   map<long, AcNode*>::iterator iter;
   for (iter = root->next_.begin(); iter != root->next_.end(); ++iter) {
@@ -197,6 +197,10 @@ int AC::buildFailPath()
   return 0;
 }
 
+int AC::match(const string doc)
+{
+  
+}
 
 
 #endif // __AC_H__
