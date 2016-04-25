@@ -22,6 +22,7 @@ This folder contains some useful algorithms for programming.
 18. cf (Collaborative filtering)
 19. gbdt (Gradient Boosting Decision Tree)
 20. rf (random forest)
+21. fm (Flajolet Martin)
     <br />...
 
 ### Reference
