@@ -11,17 +11,5 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.aggregate:jetty-all:9.2.16.v20160414" level="project" />
-    <orderEntry type="library" name="Maven: javax.websocket:javax.websocket-api:1.0" level="project" />
-    <orderEntry type="library" name="Maven: javax.servlet:javax.servlet-api:3.1.0" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-jsp:9.2.16.v20160414" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.toolchain:jetty-schemas:3.1.M0" level="project" />
-    <orderEntry type="library" name="Maven: javax.servlet.jsp:javax.servlet.jsp-api:2.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.web:javax.servlet.jsp:2.3.2" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:javax.servlet.jsp.jstl:1.2.0.v201105211821" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish.web:javax.servlet.jsp.jstl:1.2.2" level="project" />
-    <orderEntry type="library" name="Maven: org.glassfish:javax.el:3.0.0" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:org.eclipse.jdt.core:3.8.2.v20130121" level="project" />
-    <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
   </component>
 </module>
