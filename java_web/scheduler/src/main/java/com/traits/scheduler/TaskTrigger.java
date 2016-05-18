@@ -16,6 +16,9 @@ public class TaskTrigger implements Job {
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
         logger.info(">> TaskTrigger execute");
+        TaskScanner taskscanner = TaskScanner.getInstance();
+
+
         JobDataMap data = context.getMergedJobDataMap();
         System.out.println("someProp = " + data.getString("someProp"));
         logger.info("<< TaskTrigger execute");

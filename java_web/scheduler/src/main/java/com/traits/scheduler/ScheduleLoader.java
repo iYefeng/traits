@@ -11,7 +11,6 @@ import javax.servlet.ServletContextListener;
  */
 public class ScheduleLoader implements ServletContextListener {
 
-    TaskScheduler scheduler = new TaskScheduler();
     Logger logger = Logger.getLogger("scheduler");
 
     public void contextInitialized(ServletContextEvent servletContextEvent) {
@@ -19,10 +18,10 @@ public class ScheduleLoader implements ServletContextListener {
         PropertyConfigurator.configure(
                 this.getClass().getClassLoader().getResource("/").getPath() + "log4j.properties"
         );
-        scheduler.run();
+        TaskScheduler.run();
     }
 
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        scheduler.stop();
+        TaskScheduler.stop();
     }
 }
