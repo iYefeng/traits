@@ -19,9 +19,7 @@ public class HelloWorldServlet extends HttpServlet
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException
     {
-        // 首先将访问修饰符覆写为public
 
-        // 设置内容类型
         resp.setContentType("text/html");
 
         PrintWriter out = resp.getWriter();
