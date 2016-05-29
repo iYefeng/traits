@@ -3,6 +3,11 @@ package com.traits.scheduler;
 
 import org.apache.log4j.Logger;
 import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -15,28 +20,46 @@ public class TaskScheduler {
 
 
     Logger logger = Logger.getLogger("scheduler");
+    private Properties confProperties;
+    private SchedulerFactory schedFact;
+    private Scheduler sched;
 
-    public static void run() {
+    public TaskScheduler() throws SchedulerException {
+        String configPath = this.getClass().getClassLoader().getResource("/").getPath()
+                + "conf.properties";
+        confProperties = new Properties();
         try {
-            SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
-            Scheduler sched = schedFact.getScheduler();
-            // define the job and tie it to our HelloJob class
-            JobDetail job = newJob(TaskTrigger.class)
-                    .withIdentity("SystemJob", "group1")
-                    .usingJobData("someProp", "someValue")
-                    .build();
+            confProperties.load(new FileInputStream(configPath));
+        } catch (IOException e) {
+            logger.debug(e.getMessage());
+        }
+        schedFact = new org.quartz.impl.StdSchedulerFactory();
+        sched = schedFact.getScheduler();
+        //Scheduler sched = StdSchedulerFactory.getDefaultScheduler();
+    }
 
-            // Trigger the job to run now, and then every 40 seconds
-            Trigger trigger = newTrigger()
-                    .withIdentity("SysytemTrigger", "group1")
-                    .startNow()
-                    .withSchedule(simpleSchedule()
-                            .withIntervalInSeconds(10)
-                            .repeatForever())
-                    .build();
+    public void run() {
+        try {
+            String schedulerType = confProperties.getProperty("scheduler.type", "master");
 
-            // Tell quartz to schedule the job using our trigger
-            sched.scheduleJob(job, trigger);
+            if (schedulerType.equals("master")) {
+                // define the job and tie it to our HelloJob class
+                JobDetail job = newJob(TaskTrigger.class)
+                        .withIdentity("SystemJob", "group1")
+                        .usingJobData("someProp", "someValue")
+                        .build();
+                // Trigger the job to run now, and then every 40 seconds
+                Trigger trigger = newTrigger()
+                        .withIdentity("SysytemTrigger", "group1")
+                        .startNow()
+                        .withSchedule(simpleSchedule()
+                                .withIntervalInSeconds(10)
+                                .repeatForever())
+                        .build();
+                // Tell quartz to schedule the job using our trigger
+                sched.scheduleJob(job, trigger);
+            }
+
             if (!sched.isShutdown())
                 sched.start();
         } catch (SchedulerException e) {
@@ -45,10 +68,8 @@ public class TaskScheduler {
     }
 
 
-    public static void stop() {
+    public void stop() {
         try {
-            SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
-            Scheduler sched = schedFact.getScheduler();
             sched.shutdown();
         } catch (SchedulerException e) {
             e.printStackTrace();
