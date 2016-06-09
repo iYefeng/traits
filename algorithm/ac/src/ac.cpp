@@ -1,3 +1,10 @@
+/**
+ * Aho-Corasick
+ * 1.建立模式的Trie
+ * 2.给Trie添加失败路径
+ * 3.根据AC自动机，搜索待处理的文本
+ * */
+
 #ifndef __AC_H__
 #define __AC_H__
 
@@ -9,6 +16,9 @@
 #include <string>
 #define DEBUG
 #include <assert.h>
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace std;
 using namespace std::tr1;
@@ -100,10 +110,11 @@ class AC {
   
     int loadPattern(const vector<string> vStr);
     int buildTree();
-    int insert(const char *str);
+    //int insert(const char *str);
     int nodeToQueue(pNode root, queue< pair<long, pNode> > &acQueue);
     int buildFailPath();
     int match(const string doc);
+    int output(int patternNo);
 
     pNode root_;
     map<int, wstring> patternIdx_;
@@ -113,9 +124,9 @@ class AC {
 
 int AC::loadPattern(const vector<string> vStr)
 {
-  int size_t len = vStr.size();
+  size_t len = vStr.size();
   for (int i = 0; i < len; ++i) {
-    wstring tmp = c2w(vStr[i]);
+    wstring tmp = c2w(vStr[i].c_str());
     patternIdx_.insert(pair<int, wstring>(patternCnt_, tmp));
     ++patternCnt_;
   }
@@ -156,7 +167,7 @@ int AC::nodeToQueue(pNode root, queue< pair<long, pNode> > &acQueue)
 {
   map<long, AcNode*>::iterator iter;
   for (iter = root->next_.begin(); iter != root->next_.end(); ++iter) {
-    acQueue.push(iter);
+    acQueue.push(pair<long, AcNode*>(iter->first, iter->second));
   }
   return 0;
 }
@@ -165,25 +176,27 @@ int AC::buildFailPath()
 {
   int i;
   long key;
-  queue<pair<long, pNode>> acQueue;
+  queue< pair<long, pNode> > acQueue;
   map<long, pNode>::iterator iter;
   root_->fail_ = root_;
   for (iter = root_->next_.begin(); \
-        iter != root_.next_.end(); ++iter) {
-    nodeToQueue(iter.second, acQueue);
+        iter != root_->next_.end(); ++iter) {
+    nodeToQueue(iter->second, acQueue);
     iter->second->fail_ = root_;
   }
   pNode tmp = NULL, parent = NULL;
+  pair<long, pNode> pairtmp;
   while (!acQueue.empty()) {
-    tmp = acQueue.front();
+    pairtmp = acQueue.front();
+    key = pairtmp.first;
+    tmp = pairtmp.second;
     acQueue.pop();
-    nodeToQueue(tmp.second, acQueue);
-    key = tmp.first;
+    nodeToQueue(tmp, acQueue);
     parent = tmp->parent_;
     while (true) {
       iter = parent->fail_->next_.find(key);
       if (iter != parent->fail_->next_.end()) {
-        tmp->fail_ = iter.second;
+        tmp->fail_ = iter->second;
         break;
       } else {
         if (parent->fail_ == root_) {
@@ -197,10 +210,60 @@ int AC::buildFailPath()
   return 0;
 }
 
-int AC::match(const string doc)
-{
-  
+int AC::output(int patternNo) {
+  map<int, wstring>::iterator patIter;
+  patIter = patternIdx_.find(patternNo);
+  assert(patIter != patternIdx_.end());
+  cout << "patternNo: ";
+  cout << patternNo;
+  cout << "pattern: ";
+  cout << w2c(patIter->second.c_str());
+  cout << endl;
+  return 0;
 }
 
+int AC::match(const string doc)
+{
+  pNode tmp = root_;
+  wstring wstr = c2w(doc.c_str());
+  int len = wstr.size();
+  int i = 0;
+  long key;
+  map<long, pNode>::iterator iter;
+  while(i < len) {
+    key = wstr[i];
+    iter = tmp->next_.find(key);
+    if (iter != tmp->next_.end()) {
+      tmp = iter->second;
+      if (tmp->patternTag_ == 1) {
+        output(tmp->patternNo_);       
+      }
+      i++;
+    } else {
+      if (tmp == root_) {
+        i++;    
+      } else {
+        tmp = tmp->fail_;
+      } if (tmp->patternTag_ == 1) {
+        output(tmp->patternNo_);       
+      }
+    }
+  }
+  while (tmp != root_) {
+    tmp = tmp->fail_;
+    if (tmp->patternTag_ == 1) {
+      output(tmp->patternNo_);       
+    }
+  }
+  return 0;  
+}
+
+int main()
+{
+  AC testas;
+   
+
+  return 0;
+}
 
 #endif // __AC_H__
