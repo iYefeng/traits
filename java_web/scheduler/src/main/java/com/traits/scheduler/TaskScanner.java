@@ -25,17 +25,13 @@ public class TaskScanner {
         } catch (IOException e) {
             logger.debug(e.getMessage());
         }
-        dbtype = confProperties.getProperty("task.storage", "mongodb");
+        dbtype = confProperties.getProperty("task.storage", "mysql");
         host = confProperties.getProperty("task.host", "127.0.0.1");
-        port = Integer.parseInt(confProperties.getProperty("task.port", "27017"));
-        database = confProperties.getProperty("task.db", "scheduler");
-        table = confProperties.getProperty("task.table", "task");
-        user = confProperties.getProperty("task.user", "");
-        passwd = confProperties.getProperty("task.passwd", "");
-
-
-
-
+        port = Integer.parseInt(confProperties.getProperty("task.port", "3306"));
+        database = confProperties.getProperty("task.db", "traits");
+        table = confProperties.getProperty("task.table", "tasks");
+        user = confProperties.getProperty("task.user", "root");
+        passwd = confProperties.getProperty("task.password", "YF635oo3525");
 
     }
 

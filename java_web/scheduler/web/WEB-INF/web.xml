@@ -17,6 +17,16 @@
         <url-pattern>/HelloWorld</url-pattern><!--  注意前面要有斜线-->
     </servlet-mapping>
 
+    <filter>
+        <filter-name>struts</filter-name>
+        <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>struts</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
 
 
 </web-app>

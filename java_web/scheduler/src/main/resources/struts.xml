@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+        "http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+    <!-- 支持动态调用 -->
+    <constant name="struts.enable.DynamicMethodInvocation" value="true"/>
+
+    <!-- 设置开发模式 -->
+    <constant name="struts.devMode" value="true"/>
+
+
+    <package name="front" namespace="/" extends="struts-default">
+        <action name="user" class="com.traits.struts.hello.HelloAction">
+            <result name="success">/template/index.jsp</result>
+        </action>
+    </package>
+
+</struts>
