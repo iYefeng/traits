@@ -4,7 +4,7 @@ This folder contains some useful algorithms for programming.
 
 1. tire
 2. tf-idf
-3. lda[2]
+3. lda (Latent Dirichlet Allocation)[2]
 4. word-vector
 5. lr
 6. svm[4]
@@ -23,7 +23,11 @@ This folder contains some useful algorithms for programming.
 19. gbdt (Gradient Boosting Decision Tree)
 20. rf (random forest)
 21. fm (Flajolet Martin)[6]
-    <br />...
+22. knn (k-NearestNeighbor)
+23. k-means
+24. lda (Linear discriminant analysis)
+25. naive bayes
+  <br />...
 
 ### Reference
 1. http://www.cnblogs.com/huangxincheng/default.html?page=8 
