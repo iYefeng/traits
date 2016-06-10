@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from math import log
-import pickle
+import simplejson as json
 
 class DecisionTree():
 
@@ -35,7 +35,7 @@ class DecisionTree():
 
   def grabTree(self, filename):
     fr = open(filename)
-    data = pickle.load(fr)
+    data = json.loads(fr.read())
     fr.close()
     return (data["tree"], data["labels"])
 
@@ -44,7 +44,8 @@ class DecisionTree():
     data = {}
     data["tree"] = self.tree_
     data["labels"] = self.labels_
-    pickle.dump(data, fw)
+    out = json.dumps(data, ensure_ascii=False)
+    fw.write(out)
     fw.close()
 
   def calcShannonEnt(self, dataSet):
@@ -117,7 +118,7 @@ class DecisionTree():
     uniqueVals = set(featValues)
     for value in uniqueVals:
       subLabels = labels[:]
-      myTree[bestFeatLabel][value] = self._createTree(self.splitDataSet(dataSet, bestFeat, value), subLabels)
+      myTree[bestFeatLabel][str(value)] = self._createTree(self.splitDataSet(dataSet, bestFeat, value), subLabels)
     return myTree
 
   def classify(self, testVec):
@@ -132,7 +133,7 @@ class DecisionTree():
     secondDict = inputTree[firstStr]
     featIndex = featLabels.index(firstStr)
     key = testVec[featIndex]
-    valueOfFeat = secondDict[key]
+    valueOfFeat = secondDict[str(key)]
     if isinstance(valueOfFeat, dict): 
       classLabel = self._classify(valueOfFeat, featLabels, testVec)
     else: classLabel = valueOfFeat
@@ -155,7 +156,8 @@ if __name__ == "__main__":
   #print tree.splitDataSet(dataSet, 0, 0)
   #print tree.chooseBestFeatureToSplit(dataSet)
   #print tree.createTree(dataSet, labels)
-
+  del tree
   tree1 = DecisionTree(infilename="../models/test.model")
-  print tree.classify([1,1])
+  print tree1.classify([1,1])
+  print tree1.classify([0,1])
 
