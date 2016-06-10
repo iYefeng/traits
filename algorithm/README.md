@@ -27,6 +27,7 @@ This folder contains some useful algorithms for programming.
 23. k-means
 24. lda (Linear discriminant analysis)
 25. naive bayes
+26. decision tree
   <br />...
 
 ### Reference
