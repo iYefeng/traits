@@ -13,3 +13,6 @@ algorithm/lda/data/
 algorithm/decisiontree/models/
 algorithm/decisiontree/data/
 nodejs/
+jupyter/*_checkpoints*
+jupyter/*/*_checkpoints*
+
