@@ -1,4 +1,4 @@
-package com.traits.dao;
+package com.traits.db;
 
 import com.mongodb.*;
 import com.mongodb.client.FindIterable;

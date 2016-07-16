@@ -12,7 +12,7 @@ import javax.servlet.ServletContextListener;
 public class ScheduleLoader implements ServletContextListener {
 
     Logger logger = Logger.getLogger("scheduler");
-    private TaskScheduler taskScheduler;
+    private SysScheduler _sysScheduler;
 
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         logger.debug(this.getClass().getClassLoader().getResource("/").getPath());
@@ -20,18 +20,18 @@ public class ScheduleLoader implements ServletContextListener {
                 this.getClass().getClassLoader().getResource("/").getPath() + "log4j.properties"
         );
         try{
-            taskScheduler = new TaskScheduler();
+            _sysScheduler = new SysScheduler();
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
             return;
         }
-        taskScheduler.run();
+        _sysScheduler.run();
     }
 
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        if (taskScheduler != null) {
-            taskScheduler.stop();
+        if (_sysScheduler != null) {
+            _sysScheduler.stop();
         }
     }
 }

@@ -1,0 +1,2 @@
+[DEBUG] 2016-07-17 03:05:04274 MySQLHandler.java:78(MySQLHandler:main:0): SELECT * from projectdb
+[DEBUG] 2016-07-17 03:05:13618 MySQLHandler.java:78(MySQLHandler:main:0): SELECT * from projectdb

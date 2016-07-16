@@ -3,7 +3,6 @@ package com.traits.scheduler;
 
 import org.apache.log4j.Logger;
 import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,15 +15,15 @@ import static org.quartz.TriggerBuilder.newTrigger;
 /**
  * Created by YeFeng on 2016/5/17.
  */
-public class TaskScheduler {
+public class SysScheduler {
 
 
     Logger logger = Logger.getLogger("scheduler");
     private Properties confProperties;
     private SchedulerFactory schedFact;
-    private Scheduler sched;
+    private static Scheduler sched;
 
-    public TaskScheduler() throws SchedulerException {
+    public SysScheduler() throws SchedulerException {
         String configPath = this.getClass().getClassLoader().getResource("/").getPath()
                 + "conf.properties";
         confProperties = new Properties();
@@ -39,12 +38,14 @@ public class TaskScheduler {
     }
 
     public void run() {
+        logger.info("SysScheduler running");
         try {
             String schedulerType = confProperties.getProperty("scheduler.type", "master");
 
             if (schedulerType.equals("master")) {
+                logger.info("run as master");
                 // define the job and tie it to our HelloJob class
-                JobDetail job = newJob(TaskTrigger.class)
+                JobDetail job = newJob(ProjectTrigger.class)
                         .withIdentity("SystemJob", "group1")
                         .usingJobData("someProp", "someValue")
                         .build();
@@ -74,5 +75,9 @@ public class TaskScheduler {
         } catch (SchedulerException e) {
             e.printStackTrace();
         }
+    }
+
+    public static Scheduler getScheduler() {
+        return sched;
     }
 }
