@@ -40,21 +40,38 @@ public class SysScheduler {
     public void run() {
         logger.info("SysScheduler running");
         try {
-            String schedulerType = confProperties.getProperty("scheduler.type", "master");
+            String schedulerType = confProperties.getProperty("scheduler.type", "projectTrigger, taskTrigger");
 
-            if (schedulerType.equals("master")) {
-                logger.info("run as master");
+            if (schedulerType.contains("projectTrigger")) {
+                logger.info("run as projectTrigger");
                 // define the job and tie it to our HelloJob class
                 JobDetail job = newJob(ProjectTrigger.class)
-                        .withIdentity("SystemJob", "group1")
-                        .usingJobData("someProp", "someValue")
+                        .withIdentity("SystemJob", "projectTrigger")
                         .build();
                 // Trigger the job to run now, and then every 40 seconds
                 Trigger trigger = newTrigger()
-                        .withIdentity("SysytemTrigger", "group1")
+                        .withIdentity("SysytemTrigger", "projectTrigger")
                         .startNow()
                         .withSchedule(simpleSchedule()
                                 .withIntervalInSeconds(10)
+                                .repeatForever())
+                        .build();
+                // Tell quartz to schedule the job using our trigger
+                sched.scheduleJob(job, trigger);
+            }
+
+            if (schedulerType.contains("taskTrigger")) {
+                logger.info("run as projectTrigger");
+                // define the job and tie it to our HelloJob class
+                JobDetail job = newJob(TaskTrigger.class)
+                        .withIdentity("SystemJob", "taskTrigger")
+                        .build();
+                // Trigger the job to run now, and then every 40 seconds
+                Trigger trigger = newTrigger()
+                        .withIdentity("SysytemTrigger", "taskTrigger")
+                        .startNow()
+                        .withSchedule(simpleSchedule()
+                                .withIntervalInSeconds(60)
                                 .repeatForever())
                         .build();
                 // Tell quartz to schedule the job using our trigger

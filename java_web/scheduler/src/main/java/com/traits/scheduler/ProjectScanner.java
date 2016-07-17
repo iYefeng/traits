@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by YeFeng on 2016/5/18.
@@ -26,7 +28,7 @@ public class ProjectScanner {
     Logger logger = Logger.getLogger("scheduler");
 
     private Map<String, BaseProject> _projectMap = new HashMap<String, BaseProject>();
-    private BaseStorage _storage = null;
+
 
     private ProjectScanner() {
         String configPath = this.getClass().getClassLoader().getResource("/").getPath()
@@ -43,7 +45,6 @@ public class ProjectScanner {
         database = confProperties.getProperty("task.db", "scheduler");
         user = confProperties.getProperty("task.user", null);
         passwd = confProperties.getProperty("task.password", null);
-
     }
 
     public static ProjectScanner getInstance() {
@@ -52,11 +53,15 @@ public class ProjectScanner {
 
     public boolean loadProjects() {
         logger.info(">> loading projects");
+        BaseStorage _storage = null;
+
         try {
             if (dbtype.equals("mysql")) {
                 _storage = new MySQLStorage(host, port, database, user, passwd);
             } else if (dbtype.equals("mongodb")) {
                 _storage = new MongoDBStorage(host, port, database, user, passwd);
+            } else {
+                _storage = new MySQLStorage(host, port, database, user, passwd);
             }
 
             for (Map.Entry<String, BaseProject> p: _projectMap.entrySet()) {  //// set project to delete

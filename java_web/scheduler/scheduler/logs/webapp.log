@@ -1,2 +1,91 @@
 [DEBUG] 2016-07-17 03:05:04274 MySQLHandler.java:78(MySQLHandler:main:0): SELECT * from projectdb
 [DEBUG] 2016-07-17 03:05:13618 MySQLHandler.java:78(MySQLHandler:main:0): SELECT * from projectdb
+[DEBUG] 2016-07-17 15:24:08636 Crontab.java:47(Crontab:main:1): cnt: 0
+[DEBUG] 2016-07-17 15:24:47944 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:24:47952 Crontab.java:47(Crontab:main:8): cnt: 1
+[DEBUG] 2016-07-17 15:26:16512 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:26:16519 Crontab.java:47(Crontab:main:7): cnt: 1
+[DEBUG] 2016-07-17 15:26:16525 Crontab.java:47(Crontab:main:13): cnt: 2
+[DEBUG] 2016-07-17 15:32:03606 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:32:03611 Crontab.java:47(Crontab:main:5): cnt: 1
+[DEBUG] 2016-07-17 15:32:03633 Crontab.java:47(Crontab:main:27): cnt: 2
+[DEBUG] 2016-07-17 15:32:03636 Crontab.java:47(Crontab:main:30): cnt: 3
+[DEBUG] 2016-07-17 15:32:03650 Crontab.java:47(Crontab:main:44): cnt: 4
+[DEBUG] 2016-07-17 15:34:01374 Crontab.java:47(Crontab:main:1): cnt: 0
+[DEBUG] 2016-07-17 15:34:01380 Crontab.java:47(Crontab:main:7): cnt: 1
+[DEBUG] 2016-07-17 15:34:01388 Crontab.java:47(Crontab:main:15): cnt: 2
+[DEBUG] 2016-07-17 15:34:34599 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:34:34605 Crontab.java:47(Crontab:main:6): cnt: 1
+[DEBUG] 2016-07-17 15:34:34612 Crontab.java:47(Crontab:main:13): cnt: 2
+[DEBUG] 2016-07-17 15:34:58914 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:34:58921 Crontab.java:47(Crontab:main:7): cnt: 1
+[DEBUG] 2016-07-17 15:34:58926 Crontab.java:47(Crontab:main:12): cnt: 2
+[DEBUG] 2016-07-17 15:34:58930 Crontab.java:47(Crontab:main:16): cnt: 3
+[DEBUG] 2016-07-17 15:34:58947 Crontab.java:47(Crontab:main:33): cnt: 4
+[DEBUG] 2016-07-17 15:35:37793 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:35:37797 Crontab.java:47(Crontab:main:4): cnt: 1
+[DEBUG] 2016-07-17 15:35:37802 Crontab.java:47(Crontab:main:9): cnt: 2
+[DEBUG] 2016-07-17 15:35:37805 Crontab.java:47(Crontab:main:12): cnt: 3
+[DEBUG] 2016-07-17 15:35:37821 Crontab.java:47(Crontab:main:28): cnt: 4
+[DEBUG] 2016-07-17 15:35:37860 Crontab.java:47(Crontab:main:67): cnt: 5
+[DEBUG] 2016-07-17 15:36:12107 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:36:12114 Crontab.java:47(Crontab:main:7): cnt: 1
+[DEBUG] 2016-07-17 15:36:12119 Crontab.java:47(Crontab:main:12): cnt: 2
+[DEBUG] 2016-07-17 15:36:12122 Crontab.java:47(Crontab:main:15): cnt: 3
+[DEBUG] 2016-07-17 15:36:12143 Crontab.java:47(Crontab:main:36): cnt: 4
+[DEBUG] 2016-07-17 15:36:12191 Crontab.java:47(Crontab:main:84): cnt: 5
+[DEBUG] 2016-07-17 15:36:43657 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:36:43664 Crontab.java:47(Crontab:main:7): cnt: 1
+[DEBUG] 2016-07-17 15:36:43668 Crontab.java:47(Crontab:main:11): cnt: 2
+[DEBUG] 2016-07-17 15:36:43669 Crontab.java:47(Crontab:main:12): cnt: 3
+[DEBUG] 2016-07-17 15:36:43670 Crontab.java:47(Crontab:main:13): cnt: 4
+[DEBUG] 2016-07-17 15:36:43677 Crontab.java:47(Crontab:main:20): cnt: 5
+[DEBUG] 2016-07-17 15:37:1220 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:37:1227 Crontab.java:47(Crontab:main:7): cnt: 1
+[DEBUG] 2016-07-17 15:37:1232 Crontab.java:47(Crontab:main:12): cnt: 2
+[DEBUG] 2016-07-17 15:37:1233 Crontab.java:47(Crontab:main:13): cnt: 3
+[DEBUG] 2016-07-17 15:37:1235 Crontab.java:47(Crontab:main:15): cnt: 4
+[DEBUG] 2016-07-17 15:37:27535 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:37:27540 Crontab.java:47(Crontab:main:5): cnt: 1
+[DEBUG] 2016-07-17 15:37:27545 Crontab.java:47(Crontab:main:10): cnt: 2
+[DEBUG] 2016-07-17 15:37:27546 Crontab.java:47(Crontab:main:11): cnt: 3
+[DEBUG] 2016-07-17 15:37:27547 Crontab.java:47(Crontab:main:12): cnt: 4
+[DEBUG] 2016-07-17 15:37:27551 Crontab.java:47(Crontab:main:16): cnt: 5
+[DEBUG] 2016-07-17 15:38:20126 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:38:20132 Crontab.java:47(Crontab:main:6): cnt: 1
+[DEBUG] 2016-07-17 15:38:20138 Crontab.java:47(Crontab:main:12): cnt: 2
+[DEBUG] 2016-07-17 15:38:20139 Crontab.java:47(Crontab:main:13): cnt: 3
+[DEBUG] 2016-07-17 15:38:20140 Crontab.java:47(Crontab:main:14): cnt: 4
+[DEBUG] 2016-07-17 15:38:20141 Crontab.java:47(Crontab:main:15): cnt: 5
+[DEBUG] 2016-07-17 15:40:57943 Crontab.java:47(Crontab:main:0): cnt: 0
+[DEBUG] 2016-07-17 15:40:57947 Crontab.java:47(Crontab:main:4): cnt: 1
+[DEBUG] 2016-07-17 15:40:57950 Crontab.java:47(Crontab:main:7): cnt: 2
+[DEBUG] 2016-07-17 15:40:57951 Crontab.java:47(Crontab:main:8): cnt: 3
+[DEBUG] 2016-07-17 15:40:57954 Crontab.java:47(Crontab:main:11): cnt: 4
+[DEBUG] 2016-07-17 17:47:07177 MySQLHandler.java:77(MySQLHandler:main:0): SELECT id, name from projectdb where id='123'
+[DEBUG] 2016-07-17 17:47:07221 MySQLHandler.java:144(MySQLHandler:main:44): DELETE FROM projectdb where id=? 
+[DEBUG] 2016-07-17 17:47:07247 MySQLHandler.java:152(MySQLHandler:main:70): com.mysql.jdbc.JDBC4PreparedStatement@42a2397: DELETE FROM projectdb where id=** NOT SPECIFIED ** 
+[DEBUG] 2016-07-17 17:47:07248 MySQLHandler.java:152(MySQLHandler:main:71): com.mysql.jdbc.JDBC4PreparedStatement@42a2397: DELETE FROM projectdb where id='12' 
+[DEBUG] 2016-07-17 17:47:07249 MySQLHandler.java:158(MySQLHandler:main:72): com.mysql.jdbc.JDBC4PreparedStatement@42a2397: DELETE FROM projectdb where id='1' 
+[DEBUG] 2016-07-17 17:47:26797 MySQLHandler.java:77(MySQLHandler:main:0): SELECT id, name from projectdb where id='123'
+[DEBUG] 2016-07-17 17:47:26808 MySQLHandler.java:144(MySQLHandler:main:11): DELETE FROM projectdb where id=? 
+[DEBUG] 2016-07-17 17:47:26829 MySQLHandler.java:152(MySQLHandler:main:32): com.mysql.jdbc.JDBC4PreparedStatement@42a2397: DELETE FROM projectdb where id=** NOT SPECIFIED ** 
+[DEBUG] 2016-07-17 17:47:26830 MySQLHandler.java:152(MySQLHandler:main:33): com.mysql.jdbc.JDBC4PreparedStatement@42a2397: DELETE FROM projectdb where id=12 
+[DEBUG] 2016-07-17 17:47:26830 MySQLHandler.java:158(MySQLHandler:main:33): com.mysql.jdbc.JDBC4PreparedStatement@42a2397: DELETE FROM projectdb where id='1' 
+[DEBUG] 2016-07-17 18:22:38136 MySQLHandler.java:77(MySQLHandler:main:1): SELECT id, name from projectdb where id='123'
+[DEBUG] 2016-07-17 18:22:38147 MySQLHandler.java:144(MySQLHandler:main:12): DELETE FROM projectdb where id=? 
+[DEBUG] 2016-07-17 18:22:38169 MySQLHandler.java:152(MySQLHandler:main:34): com.mysql.jdbc.JDBC4PreparedStatement@63ab5267: DELETE FROM projectdb where id=** NOT SPECIFIED ** 
+[DEBUG] 2016-07-17 18:22:38170 MySQLHandler.java:152(MySQLHandler:main:35): com.mysql.jdbc.JDBC4PreparedStatement@63ab5267: DELETE FROM projectdb where id=12 
+[DEBUG] 2016-07-17 18:22:38171 MySQLHandler.java:158(MySQLHandler:main:36): com.mysql.jdbc.JDBC4PreparedStatement@63ab5267: DELETE FROM projectdb where id='1' 
+[DEBUG] 2016-07-18 01:12:55542 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:15:47646 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:16:04818 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:16:59198 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:18:00658 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:18:45524 MySQLHandler.java:82(MySQLHandler:main:1): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:18:56912 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:19:13245 MySQLHandler.java:82(MySQLHandler:main:1): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:19:22838 MySQLHandler.java:82(MySQLHandler:main:1): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:19:33487 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:20:01211 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
+[DEBUG] 2016-07-18 01:20:09408 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`

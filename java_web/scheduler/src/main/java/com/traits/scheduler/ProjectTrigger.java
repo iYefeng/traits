@@ -15,6 +15,8 @@ import static org.quartz.TriggerBuilder.newTrigger;
 /**
  * Created by YeFeng on 2016/5/18.
  */
+
+@DisallowConcurrentExecution
 public class ProjectTrigger implements Job {
 
     Logger logger = Logger.getLogger("scheduler");

@@ -1,16 +1,47 @@
 package com.traits.model;
 
+import com.traits.db.MySQLHandler;
 import org.apache.log4j.Logger;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Created by YeFeng on 2016/5/18.
+ *
+ table
+ CREATE TABLE `taskdb` (
+ `id` varchar(32) NOT NULL DEFAULT '' COMMENT 'uuid',
+ `name` varchar(128) DEFAULT NULL,
+ `lunchtime` timestamp NULL DEFAULT NULL,
+ `project_id` varchar(100) DEFAULT NULL,
+ `status` tinyint(4) DEFAULT NULL COMMENT '0-init; 1-active; 2-running; 3-success; 4-fail; 5-stop; 6-delete',
+ `updatetime` timestamp NULL DEFAULT NULL,
+ `starttime` timestamp NULL DEFAULT NULL,
+ `endtime` timestamp NULL DEFAULT NULL,
+ `args` varchar(1024) DEFAULT NULL COMMENT 'json {"lunchTime": 123456789} by default',
+ `log` varchar(10240) DEFAULT NULL,
+ `dependence_finish_rate` decimal(10,5) DEFAULT NULL,
+ `triggertime` timestamp NULL DEFAULT NULL,
+ `retry_count` tinyint(4) DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `idx_project_id` (`project_id`),
+ KEY `idx_status` (`status`),
+ KEY `idx_starttime` (`starttime`),
+ KEY `idx_name` (`name`),
+ KEY `idx_lunchtime` (`lunchtime`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
  */
 public class BaseTask {
 
     Logger logger = Logger.getLogger("scheduler");
 
     public enum Status {
-        UNKNOWN(-1), INIT(0), ACTIVE(1), RUNNING(2), SUCCESS(3), FAIL(4), STOP(5), DELETE(6);
+        UNKNOWN(-1), INIT(0), ACTIVE(1), RUNNING(2), SUCCESS(3),
+        FAIL(4), STOP(5), DELETE(6), CHECKING(7), PASSED(8);
 
         private int value = 0;
 
@@ -34,6 +65,10 @@ public class BaseTask {
                     return STOP;
                 case 6:
                     return DELETE;
+                case 7:
+                    return CHECKING;
+                case 8:
+                    return PASSED;
                 default:
                     return UNKNOWN;
             }
@@ -46,17 +81,94 @@ public class BaseTask {
 
     private String id;
     private String name;
+    private Double lunchtime;
     private String project_id;
     private Status status;
-    private double updatetime;
-    private double starttime;
-    private double endtime;
+    private Double updatetime;
+    private Double starttime;
+    private Double endtime;
     private String args;
     private String log;
-    private double dependence_finish_rate;
-    private double triggertime;
+    private Double dependence_finish_rate;
+    private Double triggertime;
+    private Integer retry_count;
+
+    public Date transTimestamp(Double ts) {
+        Long _timestamp;
+        Date _date;
+        if (ts != null && ts != 0.0) {
+            _timestamp = (new Double(ts * 1000)).longValue();
+            _date = new Date(_timestamp);
+            return _date;
+        } else return null;
+    }
 
 
+    public boolean saveTask(MySQLHandler handler) {
+        ArrayList<ArrayList<Object>> dataList = new ArrayList<ArrayList<Object>>();
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("REPLACE INTO `taskdb` (");
+        sb.append("`id`, ");
+        sb.append("`name`, ");
+        sb.append("`lunchtime`, ");
+        sb.append("`project_id`, ");
+        sb.append("`status`, ");
+        sb.append("`updatetime`, ");
+        sb.append("`starttime`, ");
+        sb.append("`endtime`, ");
+        sb.append("`args`, ");
+        sb.append("`log`, ");
+        sb.append("`dependence_finish_rate`, ");
+        sb.append("`triggertime`, ");
+        sb.append("`retry_count`");
+        sb.append(") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+        ArrayList<Object> tmp = new ArrayList<Object>();
+        tmp.add(id);
+        tmp.add(name);
+        tmp.add(transTimestamp(lunchtime));
+        tmp.add(project_id);
+        tmp.add(status.value());
+        tmp.add(transTimestamp(updatetime));
+        tmp.add(transTimestamp(starttime));
+        tmp.add(transTimestamp(endtime));
+        tmp.add(args);
+        tmp.add(log);
+        tmp.add(dependence_finish_rate);
+        tmp.add(transTimestamp(triggertime));
+        tmp.add(retry_count);
+
+        dataList.add(tmp);
+
+        String SQL = sb.toString();
+        return  handler.executeMany(SQL, dataList);
+    }
+
+    public static ArrayList<BaseTask> load(HashMap<String, ArrayList<Object>> map, int count) {
+        ArrayList<BaseTask> tasks = new ArrayList<BaseTask>();
+
+        for (int i = 0; i < count; ++i) {
+            BaseTask tmp = new BaseTask();
+            tmp.setId((String) map.get("id").get(i));
+            tmp.setName((String) map.get("name").get(i));
+            tmp.setLunchtime(map.get("lunchtime").get(i) == null ? 0 : (Double) map.get("lunchtime").get(i));
+            tmp.setProject_id((String) map.get("project_id").get(i));
+            tmp.setStatus(Status.valueOf(map.get("status").get(i) == null ? -1 : (Integer) map.get("status").get(i)));
+            tmp.setUpdatetime(map.get("updatetime").get(i) == null ? 0 : (Double) map.get("updatetime").get(i));
+            tmp.setStarttime(map.get("starttime").get(i) == null ? 0 : (Double) map.get("starttime").get(i));
+            tmp.setEndtime(map.get("endtime").get(i) == null ? 0 : (Double) map.get("endtime").get(i));
+            tmp.setArgs((String) map.get("args").get(i));
+            tmp.setLog((String) map.get("log").get(i));
+            tmp.setDependence_finish_rate(map.get("dependence_finish_rate").get(i) == null? 0.0 : (Double) map.get("dependence_finish_rate").get(i));
+            tmp.setTriggertime(map.get("triggertime").get(i) == null ? 0 : (Double) map.get("triggertime").get(i));
+            tmp.setRetry_count(map.get("retry_count").get(i) == null? 0 : (Integer) map.get("retry_count").get(i));
+
+            tasks.add(tmp);
+        }
+
+        return tasks;
+    }
 
 
     public String toString() {
@@ -64,6 +176,7 @@ public class BaseTask {
         sb.append("task info {\n");
         sb.append("id: " + id + ",\n");
         sb.append("name: " + name + ",\n");
+        sb.append("lunchtime: " + lunchtime + ",\n");
         sb.append("projectId: " + project_id + ",\n");
         sb.append("status:" + status + ",\n");
         sb.append("updatetime: " + updatetime + ",\n");
@@ -74,6 +187,7 @@ public class BaseTask {
         sb.append("log:" + tmplog + ",\n");
         sb.append("dependence_finish_rate: " + dependence_finish_rate + ",\n");
         sb.append("triggertime: " + triggertime + ",\n");
+        sb.append("retry_count: " + retry_count + ",\n");
         sb.append("}\n");
 
         return sb.toString();
@@ -166,5 +280,21 @@ public class BaseTask {
 
     public void setTriggertime(double triggertime) {
         this.triggertime = triggertime;
+    }
+
+    public double getLunchtime() {
+        return lunchtime;
+    }
+
+    public void setLunchtime(double lunchtime) {
+        this.lunchtime = lunchtime;
+    }
+
+    public int getRetry_count() {
+        return retry_count;
+    }
+
+    public void setRetry_count(int retry_count) {
+        this.retry_count = retry_count;
     }
 }

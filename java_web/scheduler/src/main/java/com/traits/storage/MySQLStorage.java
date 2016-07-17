@@ -2,9 +2,15 @@ package com.traits.storage;
 
 import com.traits.db.MySQLHandler;
 import com.traits.model.BaseProject;
+import com.traits.model.BaseTask;
+import com.traits.scheduler.SysScheduler;
+import com.traits.util.Crontab;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -17,41 +23,52 @@ public class MySQLStorage extends BaseStorage {
     private String database;
     private String user;
     private String passwd;
+    private MySQLHandler handler;
 
-    public MySQLStorage(String host, int port, String database, String user, String passwd) {
+    private static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    public MySQLStorage(String host, int port, String database, String user, String passwd) throws SQLException {
         this.host = host;
         this.port = port;
         this.database = database;
         this.user = user;
         this.passwd = passwd;
+        this.handler = new MySQLHandler(host, port, database, user, passwd);
+    }
+
+    protected void finalize()
+    {
+        this.handler.release();
     }
 
     public ArrayList<BaseProject> getProjects() throws SQLException {
-        MySQLHandler handler = new MySQLHandler(host, port, database, user, passwd);
-        ArrayList<BaseProject> projects = new ArrayList<BaseProject>();
-        HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from projectdb");
+        HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `projectdb`");
 
-        for (int i = 0; i < handler.getCurrentCount(); ++i) {
-            BaseProject tmp = new BaseProject();
-            tmp.setId((String) result.get("id").get(i));
-            tmp.setName((String) result.get("name").get(i));
-            tmp.setStatus(BaseProject.Status.valueOf(result.get("status").get(i) == null ? -1 : (Integer) result.get("status").get(i)));
-            tmp.setCrontab((String) result.get("crontab").get(i));
-            tmp.setDependence((String) result.get("dependence").get(i));
-            tmp.setType(BaseProject.Type.valueOf(result.get("type").get(i) == null ? -1 : (Integer) result.get("type").get(i)));
-            tmp.setUser((String) result.get("user").get(i));
-            tmp.setPkg((String) result.get("pkg").get(i));
-            tmp.setUpdatetime(result.get("updatetime").get(i) == null ? 0 : (Double) result.get("updatetime").get(i));
-            tmp.setDelay(result.get("delay").get(i) == null ? 0 :(Long) result.get("delay").get(i));
-            tmp.setEmails((String) result.get("emails").get(i));
-            tmp.setCellphones((String) result.get("cellphones").get(i));
-            tmp.setArgs_script((String) result.get("args_script").get(i));
+        return BaseProject.load(result, handler.getCurrentCount());
+    }
 
-            projects.add(tmp);
-        }
+    public boolean saveOneTask(BaseTask task) throws SQLException {
+        boolean flag =  task.saveTask(handler);
+        return flag;
+    }
 
-        handler.release();
-        return projects;
+    public ArrayList<BaseTask> getInitTasks() throws Exception {
+        HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `taskdb` where `status`=0");
+
+        return BaseTask.load(result, handler.getCurrentCount());
+    }
+
+    public ArrayList<BaseTask> getSuccessOrPassedTasks() throws Exception {
+
+        Date current = new Date();
+        Date beforeDate = new Date(current.getTime() - 60L * 60L * 24L * 31L * 1000L);
+
+        HashMap<String, ArrayList<Object>> result = handler.query(
+                "SELECT * from `taskdb` where (`status`=3 OR `status`=8) AND `lunchtime` > '%s'",
+                new String[]{df.format(beforeDate)}
+        );
+
+        return BaseTask.load(result, handler.getCurrentCount());
     }
 
     public static void main(String[] args) throws SQLException {
@@ -61,5 +78,14 @@ public class MySQLStorage extends BaseStorage {
         for (BaseProject i : projects) {
             System.out.println(i.toString());
         }
+
+        Date current = new Date();
+        long tmp = current.getTime() - 86400L*1000*30;
+        System.out.println(current.getTime());
+        System.out.println(tmp);
+        Date beforeDate = new Date(tmp);
+
+        System.out.println(df.format(current));
+        System.out.println(df.format(beforeDate));
     }
 }

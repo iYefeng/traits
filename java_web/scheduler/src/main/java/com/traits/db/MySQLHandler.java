@@ -3,7 +3,10 @@ package com.traits.db;
 import java.sql.*;
 
 import org.apache.log4j.Logger;
+
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 
 /**
  * Created by YeFeng on 2016/7/16.
@@ -13,6 +16,8 @@ public class MySQLHandler {
     private Statement mStatement;
     private PreparedStatement mPreparedStatement;
     private Logger logger;
+
+    private static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public int getCurrentCount() {
         return currentCount;
@@ -43,7 +48,6 @@ public class MySQLHandler {
     }
 
     public void release(){
-
         try {
             if(mStatement != null) {
                 mStatement.close();
@@ -128,11 +132,11 @@ public class MySQLHandler {
         return result;
     }
 
-    public boolean executeMany(String SQL, ArrayList<Object[]> dataList) {
+    public boolean executeMany(String SQL, ArrayList<ArrayList<Object>> dataList) {
         return executeMany(SQL, null, dataList);
     }
 
-    public boolean executeMany(String SQL, String[] args, ArrayList<Object[]> dataList) {
+    public boolean executeMany(String SQL, String[] args, ArrayList<ArrayList<Object>> dataList) {
         boolean success = false;
         String sqlStatement;
 
@@ -149,10 +153,15 @@ public class MySQLHandler {
             mDBConnection.setAutoCommit(false);
             mPreparedStatement = mDBConnection.prepareStatement(sqlStatement);
 
-            for(Object[] values : dataList) {
+            for(ArrayList<Object> values : dataList) {
                 logger.debug(mPreparedStatement.toString());
-                for(int i = 0; i < values.length; i++) {
-                    mPreparedStatement.setObject(i + 1, values[i]);
+                for(int i = 0; i < values.size(); i++) {
+                    if (values.get(i) instanceof Date) {
+                        String tsStr = df.format(values.get(i));
+                        mPreparedStatement.setObject(i + 1, tsStr);
+                    } else {
+                        mPreparedStatement.setObject(i + 1, values.get(i));
+                    }
                 }
                 mPreparedStatement.addBatch();
             }
@@ -196,9 +205,13 @@ public class MySQLHandler {
             }
         }
 
-        ArrayList<Object[]> dataList = new ArrayList<Object[]>();
-        dataList.add(new Object[]{"12"});
-        dataList.add(new Object[]{"1"});
+        ArrayList<ArrayList<Object>> dataList = new ArrayList<ArrayList<Object>>();
+        ArrayList<Object> tmp = new ArrayList<Object>();
+        tmp.add(12);
+        dataList.add(tmp);
+        tmp = new ArrayList<Object>();
+        tmp.add("1");
+        dataList.add(tmp);
 
         System.out.println(my.executeMany("DELETE FROM %s where %s=? ", new String[]{"projectdb", "id"}, dataList));
 
