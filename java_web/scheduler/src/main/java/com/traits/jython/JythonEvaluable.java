@@ -45,24 +45,27 @@ public class JythonEvaluable {
     public JythonEvaluable(String s) {
         this.s_functionName = String.format("__temp_%d__", Math.abs(s.hashCode()));
 
-        // indent and create a function out of the code
-        String[] lines = s.split("\r\n|\r|\n");
+        if (_engine.get(s_functionName) == null) {
+            // indent and create a function out of the code
+            String[] lines = s.split("\r\n|\r|\n");
 
-        StringBuffer sb = new StringBuffer(102400);
-        sb.append("# coding=utf-8\n");
-        sb.append("import sys\n");
-        sb.append("reload(sys)\n");
-        sb.append("sys.setdefaultencoding('utf-8')\n");
-        sb.append("def ");
-        sb.append(s_functionName);
-        sb.append("():");
-        for (String line : lines) {
-            sb.append("\n  ");
-            sb.append(line);
+            StringBuffer sb = new StringBuffer(102400);
+            sb.append("# coding=utf-8\n");
+            sb.append("import sys\n");
+            sb.append("reload(sys)\n");
+            sb.append("sys.setdefaultencoding('utf-8')\n");
+            sb.append("def ");
+            sb.append(s_functionName);
+            sb.append("():");
+            for (String line : lines) {
+                sb.append("\n  ");
+                sb.append(line);
+            }
+
+            logger.debug("script:\n" + sb.toString());
+
+            _engine.execfile(new ByteArrayInputStream(sb.toString().getBytes()));
         }
-
-        logger.debug("script:\n" + sb.toString());
-        _engine.execfile(new ByteArrayInputStream(sb.toString().getBytes()));
     }
 
     public Object evaluate() {

@@ -9,9 +9,7 @@ import com.traits.util.Crontab;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Created by YeFeng on 2016/7/16.
@@ -58,17 +56,22 @@ public class MySQLStorage extends BaseStorage {
         return BaseTask.load(result, handler.getCurrentCount());
     }
 
-    public ArrayList<BaseTask> getSuccessOrPassedTasks() throws Exception {
+    public HashSet<String> getSuccessOrPassedTasks() throws Exception {
 
         Date current = new Date();
         Date beforeDate = new Date(current.getTime() - 60L * 60L * 24L * 31L * 1000L);
 
         HashMap<String, ArrayList<Object>> result = handler.query(
-                "SELECT * from `taskdb` where (`status`=3 OR `status`=8) AND `lunchtime` > '%s'",
+                "SELECT `id` from `taskdb` where (`status`=3 OR `status`=8) AND `lunchtime` > '%s'",
                 new String[]{df.format(beforeDate)}
         );
 
-        return BaseTask.load(result, handler.getCurrentCount());
+        HashSet<String> taskSet = new HashSet<String>();
+        for (int i = 0; i < handler.getCurrentCount(); ++i) {
+            taskSet.add((String) result.get("id").get(i));
+        }
+
+        return taskSet;
     }
 
     public static void main(String[] args) throws SQLException {

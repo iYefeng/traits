@@ -41,7 +41,7 @@ public class BaseTask {
 
     public enum Status {
         UNKNOWN(-1), INIT(0), ACTIVE(1), RUNNING(2), SUCCESS(3),
-        FAIL(4), STOP(5), DELETE(6), CHECKING(7), PASSED(8);
+        FAIL(4), STOP(5), DELETE(6), CHECKING(7), PASSED(8), FORCERUNNING(9);
 
         private int value = 0;
 
@@ -69,6 +69,8 @@ public class BaseTask {
                     return CHECKING;
                 case 8:
                     return PASSED;
+                case 9:
+                    return FORCERUNNING;
                 default:
                     return UNKNOWN;
             }

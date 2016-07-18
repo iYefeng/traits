@@ -5,7 +5,9 @@ import com.traits.model.BaseTask;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Created by YeFeng on 2016/7/16.
@@ -24,8 +26,8 @@ public class BaseStorage {
         return new ArrayList<BaseTask>();
     }
 
-    public ArrayList<BaseTask> getSuccessOrPassedTasks() throws Exception {
-        return new ArrayList<BaseTask>();
+    public HashSet<String> getSuccessOrPassedTasks() throws Exception {
+        return new HashSet<String>();
     }
 
     public boolean saveOneTask(BaseTask task) throws Exception {
