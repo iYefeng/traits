@@ -26,6 +26,7 @@ public class ScheduleLoader implements ServletContextListener {
             logger.error(e.getMessage());
             return;
         }
+
         _sysScheduler.run();
     }
 

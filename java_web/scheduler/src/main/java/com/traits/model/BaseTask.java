@@ -3,6 +3,7 @@ package com.traits.model;
 import com.traits.db.MySQLHandler;
 import org.apache.log4j.Logger;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,13 +36,18 @@ import java.util.Objects;
  KEY `idx_lunchtime` (`lunchtime`)
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
  */
-public class BaseTask {
+public class BaseTask implements Runnable {
 
     Logger logger = Logger.getLogger("scheduler");
 
+    public void run() {
+
+    }
+
     public enum Status {
         UNKNOWN(-1), INIT(0), ACTIVE(1), RUNNING(2), SUCCESS(3),
-        FAIL(4), STOP(5), DELETE(6), CHECKING(7), PASSED(8), FORCERUNNING(9);
+        FAIL(4), STOP(5), DELETE(6), CHECKING(7), PASSED(8), FORCERUNNING(9),
+        IGNORED(10);
 
         private int value = 0;
 
@@ -71,6 +77,8 @@ public class BaseTask {
                     return PASSED;
                 case 9:
                     return FORCERUNNING;
+                case 10:
+                    return IGNORED;
                 default:
                     return UNKNOWN;
             }
@@ -94,6 +102,8 @@ public class BaseTask {
     private Double dependence_finish_rate;
     private Double triggertime;
     private Integer retry_count;
+
+    private BaseProject _project;
 
     public Date transTimestamp(Double ts) {
         Long _timestamp;
@@ -152,26 +162,14 @@ public class BaseTask {
 
         for (int i = 0; i < count; ++i) {
             BaseTask tmp = new BaseTask();
-            tmp.setId((String) map.get("id").get(i));
-            tmp.setName((String) map.get("name").get(i));
-            tmp.setLunchtime(map.get("lunchtime").get(i) == null ? 0 : (Double) map.get("lunchtime").get(i));
-            tmp.setProject_id((String) map.get("project_id").get(i));
-            tmp.setStatus(Status.valueOf(map.get("status").get(i) == null ? -1 : (Integer) map.get("status").get(i)));
-            tmp.setUpdatetime(map.get("updatetime").get(i) == null ? 0 : (Double) map.get("updatetime").get(i));
-            tmp.setStarttime(map.get("starttime").get(i) == null ? 0 : (Double) map.get("starttime").get(i));
-            tmp.setEndtime(map.get("endtime").get(i) == null ? 0 : (Double) map.get("endtime").get(i));
-            tmp.setArgs((String) map.get("args").get(i));
-            tmp.setLog((String) map.get("log").get(i));
-            tmp.setDependence_finish_rate(map.get("dependence_finish_rate").get(i) == null? 0.0 : (Double) map.get("dependence_finish_rate").get(i));
-            tmp.setTriggertime(map.get("triggertime").get(i) == null ? 0 : (Double) map.get("triggertime").get(i));
-            tmp.setRetry_count(map.get("retry_count").get(i) == null? 0 : (Integer) map.get("retry_count").get(i));
-
+            for (String key : map.keySet()) {
+                Object obj = map.get(key).get(i);
+                tmp.setKeyValue(key, obj);
+            }
             tasks.add(tmp);
         }
-
         return tasks;
     }
-
 
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -179,7 +177,7 @@ public class BaseTask {
         sb.append("id: " + id + ",\n");
         sb.append("name: " + name + ",\n");
         sb.append("lunchtime: " + lunchtime + ",\n");
-        sb.append("projectId: " + project_id + ",\n");
+        sb.append("project_id: " + project_id + ",\n");
         sb.append("status:" + status + ",\n");
         sb.append("updatetime: " + updatetime + ",\n");
         sb.append("starttime: " + starttime + ",\n");
@@ -195,6 +193,39 @@ public class BaseTask {
         return sb.toString();
     }
 
+    public void setKeyValue(String key, Object obj) {
+        if (key.equals("id")) {
+            this.setId((String) obj);
+        } else if (key.equals("name")) {
+            this.setName((String) obj);
+        } else if (key.equals("lunchtime")) {
+            this.setLunchtime(obj == null ? 0 : (Double) obj);
+        } else if (key.equals("project_id")) {
+            this.setProject_id((String) obj);
+        } else if (key.equals("status")) {
+            this.setStatus(obj);
+        } else if (key.equals("updatetime")) {
+            this.setUpdatetime(obj == null ? 0 : (Double) obj);
+        } else if (key.equals("starttime")) {
+            this.setStarttime(obj == null ? 0 : (Double) obj);
+        } else if (key.equals("endtime")) {
+            this.setEndtime(obj == null ? 0 : (Double) obj);
+        } else if (key.equals("args")) {
+            this.setArgs((String) obj);
+        } else if (key.equals("log")) {
+            this.setLog((String) obj);
+        } else if (key.equals("dependence_finish_rate")) {
+            if (obj instanceof BigDecimal) {
+                this.setDependence_finish_rate(obj == null ? 0 : ((BigDecimal) obj).doubleValue());
+            } else {
+                this.setDependence_finish_rate(obj == null ? 0 : (Double) obj);
+            }
+        } else if (key.equals("triggertime")) {
+            this.setTriggertime(obj == null ? 0 : (Double) obj);
+        } else if (key.equals("retry_count")) {
+            this.setRetry_count(obj == null ? 0 : (Integer) obj);
+        }
+    }
 
     public String getId() {
         return id;
@@ -210,6 +241,14 @@ public class BaseTask {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Double getLunchtime() {
+        return lunchtime;
+    }
+
+    public void setLunchtime(Double lunchtime) {
+        this.lunchtime = lunchtime;
     }
 
     public String getProject_id() {
@@ -228,27 +267,31 @@ public class BaseTask {
         this.status = status;
     }
 
-    public double getUpdatetime() {
+    public void setStatus(Object value) {
+        this.status = Status.valueOf(value == null ? -1 : (Integer) value);
+    }
+
+    public Double getUpdatetime() {
         return updatetime;
     }
 
-    public void setUpdatetime(double updatetime) {
+    public void setUpdatetime(Double updatetime) {
         this.updatetime = updatetime;
     }
 
-    public double getStarttime() {
+    public Double getStarttime() {
         return starttime;
     }
 
-    public void setStarttime(double starttime) {
+    public void setStarttime(Double starttime) {
         this.starttime = starttime;
     }
 
-    public double getEndtime() {
+    public Double getEndtime() {
         return endtime;
     }
 
-    public void setEndtime(double endtime) {
+    public void setEndtime(Double endtime) {
         this.endtime = endtime;
     }
 
@@ -268,35 +311,35 @@ public class BaseTask {
         this.log = log;
     }
 
-    public double getDependence_finish_rate() {
+    public Double getDependence_finish_rate() {
         return dependence_finish_rate;
     }
 
-    public void setDependence_finish_rate(double dependence_finish_rate) {
+    public void setDependence_finish_rate(Double dependence_finish_rate) {
         this.dependence_finish_rate = dependence_finish_rate;
     }
 
-    public double getTriggertime() {
+    public Double getTriggertime() {
         return triggertime;
     }
 
-    public void setTriggertime(double triggertime) {
+    public void setTriggertime(Double triggertime) {
         this.triggertime = triggertime;
     }
 
-    public double getLunchtime() {
-        return lunchtime;
-    }
-
-    public void setLunchtime(double lunchtime) {
-        this.lunchtime = lunchtime;
-    }
-
-    public int getRetry_count() {
+    public Integer getRetry_count() {
         return retry_count;
     }
 
-    public void setRetry_count(int retry_count) {
+    public void setRetry_count(Integer retry_count) {
         this.retry_count = retry_count;
+    }
+
+    public BaseProject get_project() {
+        return _project;
+    }
+
+    public void set_project(BaseProject _project) {
+        this._project = _project;
     }
 }

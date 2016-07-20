@@ -1,5 +1,6 @@
 package com.traits.storage;
 
+import org.apache.commons.lang3.StringUtils;
 import com.traits.db.MySQLHandler;
 import com.traits.model.BaseProject;
 import com.traits.model.BaseTask;
@@ -45,6 +46,12 @@ public class MySQLStorage extends BaseStorage {
         return BaseProject.load(result, handler.getCurrentCount());
     }
 
+    public ArrayList<BaseProject> getProjects(String[] fields) throws SQLException {
+        HashMap<String, ArrayList<Object>> result = handler.query("SELECT %s from `projectdb`",
+                new String[]{StringUtils.join(fields, ", ")});
+        return BaseProject.load(result, handler.getCurrentCount());
+    }
+
     public boolean saveOneTask(BaseTask task) throws SQLException {
         boolean flag =  task.saveTask(handler);
         return flag;
@@ -52,6 +59,12 @@ public class MySQLStorage extends BaseStorage {
 
     public ArrayList<BaseTask> getInitTasks() throws Exception {
         HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `taskdb` where `status`=0");
+
+        return BaseTask.load(result, handler.getCurrentCount());
+    }
+
+    public ArrayList<BaseTask> getCheckingTasks() throws Exception {
+        HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `taskdb` where `status`=7");
 
         return BaseTask.load(result, handler.getCurrentCount());
     }

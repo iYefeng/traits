@@ -17,6 +17,7 @@ import java.util.HashMap;
  `name` varchar(512) DEFAULT NULL,
  `status` tinyint(4) DEFAULT NULL COMMENT '-1-unknown; 0-stop; 1-running; 2-delete; 3-debug; 4-checking',
  `crontab` varchar(128) DEFAULT NULL,
+ `group` varchar(64) DEFAULT NULL,
  `dependence` varchar(1024) DEFAULT NULL,
  `type` tinyint(4) DEFAULT NULL COMMENT '-1:unknown; 0-shell; 1-python; ',
  `user` varchar(128) DEFAULT NULL,
@@ -77,7 +78,7 @@ public class BaseProject {
     }
 
     public enum Type {
-        UNKNOWN(-1), SHELL(0), PYTHON(1);
+        UNKNOWN(-1), SHELL(0), PYTHON(1), SHELLSCRIPT(2);
 
         private int value;
 
@@ -91,6 +92,8 @@ public class BaseProject {
                     return SHELL;
                 case 1:
                     return PYTHON;
+                case 2:
+                    return SHELLSCRIPT;
                 default:
                     return UNKNOWN;
             }
@@ -106,6 +109,7 @@ public class BaseProject {
     private Status status;
     private String crontab;
     private String dependence;
+    private String group;
     private Type type;
     private String user;
     private String pkg;
@@ -116,7 +120,7 @@ public class BaseProject {
     private String args_script;
     private Integer retry;
     private Crontab cron;
-
+    private String script;
 
     private Status _sysStatus;
 
@@ -125,26 +129,9 @@ public class BaseProject {
 
         for (int i = 0; i < count; ++i) {
             BaseProject tmp = new BaseProject();
-            tmp.setId((String) map.get("id").get(i));
-            tmp.setName((String) map.get("name").get(i));
-            tmp.setStatus(Status.valueOf(map.get("status").get(i) == null ? -1 : (Integer) map.get("status").get(i)));
-            tmp.setCrontab((String) map.get("crontab").get(i));
-            tmp.setDependence((String) map.get("dependence").get(i));
-            tmp.setType(Type.valueOf(map.get("type").get(i) == null ? -1 : (Integer) map.get("type").get(i)));
-            tmp.setUser((String) map.get("user").get(i));
-            tmp.setPkg((String) map.get("pkg").get(i));
-            tmp.setUpdatetime(map.get("updatetime").get(i) == null ? 0 : (Double) map.get("updatetime").get(i));
-            tmp.setDelay(map.get("delay").get(i) == null ? 0 : (Long) map.get("delay").get(i));
-            tmp.setEmails((String) map.get("emails").get(i));
-            tmp.setCellphones((String) map.get("cellphones").get(i));
-            tmp.setArgs_script((String) map.get("args_script").get(i));
-            tmp.setRetry(map.get("retry").get(i) == null ? 0 : (Integer) map.get("retry").get(i));
-            if (tmp.getCrontab() != null) {
-                try {
-                    tmp.setCron(new Crontab(tmp.getCrontab()));
-                } catch (ParseException e) {
-                    tmp.setCron(null);
-                }
+            for (String key : map.keySet()) {
+                Object obj = map.get(key).get(i);
+                tmp.setKeyValue(key, obj);
             }
             projects.add(tmp);
         }
@@ -160,6 +147,7 @@ public class BaseProject {
         this.status = other.status;
         this.crontab = other.crontab;
         this.dependence = other.dependence;
+        this.group = other.group;
         this.type = other.type;
         this.user = other.user;
         this.pkg = other.pkg;
@@ -170,6 +158,7 @@ public class BaseProject {
         this.args_script = other.args_script;
         this.cron = other.cron;
         this.retry = other.retry;
+        this.script = other.script;
     }
 
 
@@ -181,6 +170,7 @@ public class BaseProject {
         sb.append("status:" + status + ",\n");
         sb.append("crontab:" + crontab + ",\n");
         sb.append("dependence: " + dependence + ",\n");
+        sb.append("group: " + group + ",\n");
         sb.append("type: " + type + ",\n");
         sb.append("user: " + user + ",\n");
         sb.append("pkg: " + pkg + ",\n");
@@ -190,9 +180,54 @@ public class BaseProject {
         sb.append("cellphones: " + cellphones + "\n");
         sb.append("args_script: " + args_script + "\n");
         sb.append("retry: " + retry + "\n");
+        String tmpscript = script.length() > 100 ? script.substring(0, 100) + "..." : script;
+        sb.append("script: " + tmpscript + "\n");
         sb.append("}\n");
 
         return sb.toString();
+    }
+
+    public void setKeyValue(String key, Object obj) {
+        if (key.equals("id")) {
+            this.setId((String) obj);
+        } else if (key.equals("name")) {
+            this.setName((String) obj);
+        } else if (key.equals("status")) {
+            this.setStatus(obj);
+        } else if (key.equals("crontab")) {
+            this.setCrontab((String) obj);
+            if (this.getCrontab() != null) {
+                try {
+                    this.setCron(new Crontab(this.getCrontab()));
+                } catch (ParseException e) {
+                    this.setCron(null);
+                }
+            }
+        } else if (key.equals("dependence")) {
+            this.setDependence((String) obj);
+        } else if (key.equals("group")) {
+            this.setGroup((String) obj);
+        } else if (key.equals("type")) {
+            this.setType(obj);
+        } else if (key.equals("user")) {
+            this.setUser((String) obj);
+        } else if (key.equals("pkg")) {
+            this.setPkg((String) obj);
+        } else if (key.equals("updatetime")) {
+            this.setUpdatetime(obj == null ? 0 : (Double) obj);
+        } else if (key.equals("delay")) {
+            this.setDelay(obj == null ? 0 : (Long) obj);
+        } else if (key.equals("emails")) {
+            this.setEmails((String) obj);
+        } else if (key.equals("cellphones")) {
+            this.setCellphones((String) obj);
+        } else if (key.equals("args_script")) {
+            this.setArgs_script((String) obj);
+        } else if (key.equals("retry")) {
+            this.setRetry(obj == null ? 0 : (Integer) obj);
+        } else if (key.equals("script")) {
+            this.setScript((String) obj);
+        }
     }
 
 
@@ -220,6 +255,10 @@ public class BaseProject {
         this.status = status;
     }
 
+    public void setStatus(Object value) {
+        this.status = Status.valueOf(value == null ? -1 : (Integer) value);
+    }
+
     public String getCrontab() {
         return crontab;
     }
@@ -236,12 +275,24 @@ public class BaseProject {
         this.dependence = dependence;
     }
 
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
     public Type getType() {
         return type;
     }
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public void setType(Object value) {
+        this.type = Type.valueOf(value == null ? -1 : (Integer) value);
     }
 
     public String getUser() {
@@ -260,19 +311,19 @@ public class BaseProject {
         this.pkg = pkg;
     }
 
-    public double getUpdatetime() {
+    public Double getUpdatetime() {
         return updatetime;
     }
 
-    public void setUpdatetime(double updatetime) {
+    public void setUpdatetime(Double updatetime) {
         this.updatetime = updatetime;
     }
 
-    public long getDelay() {
+    public Long getDelay() {
         return delay;
     }
 
-    public void setDelay(long delay) {
+    public void setDelay(Long delay) {
         this.delay = delay;
     }
 
@@ -292,20 +343,20 @@ public class BaseProject {
         this.cellphones = cellphones;
     }
 
-    public Status get_sysStatus() {
-        return _sysStatus;
-    }
-
-    public void set_sysStatus(Status _sysStatus) {
-        this._sysStatus = _sysStatus;
-    }
-
     public String getArgs_script() {
         return args_script;
     }
 
     public void setArgs_script(String args_script) {
         this.args_script = args_script;
+    }
+
+    public Integer getRetry() {
+        return retry;
+    }
+
+    public void setRetry(Integer retry) {
+        this.retry = retry;
     }
 
     public Crontab getCron() {
@@ -316,11 +367,19 @@ public class BaseProject {
         this.cron = cron;
     }
 
-    public int getRetry() {
-        return retry;
+    public String getScript() {
+        return script;
     }
 
-    public void setRetry(int retry) {
-        this.retry = retry;
+    public void setScript(String script) {
+        this.script = script;
+    }
+
+    public Status get_sysStatus() {
+        return _sysStatus;
+    }
+
+    public void set_sysStatus(Status _sysStatus) {
+        this._sysStatus = _sysStatus;
     }
 }

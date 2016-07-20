@@ -32,15 +32,17 @@ public class SysScheduler {
         } catch (IOException e) {
             logger.debug(e.getMessage());
         }
+
         schedFact = new org.quartz.impl.StdSchedulerFactory();
         sched = schedFact.getScheduler();
         //Scheduler sched = StdSchedulerFactory.getDefaultScheduler();
+
     }
 
     public void run() {
         logger.info("SysScheduler running");
         try {
-            String schedulerType = confProperties.getProperty("scheduler.type", "projectTrigger, taskTrigger");
+            String schedulerType = confProperties.getProperty("scheduler.type", "projectTrigger, taskTrigger, worker");
 
             if (schedulerType.contains("projectTrigger")) {
                 logger.info("run as projectTrigger");
@@ -62,6 +64,10 @@ public class SysScheduler {
 
             if (schedulerType.contains("taskTrigger")) {
                 logger.info("run as projectTrigger");
+
+                TaskTrigger tt = new TaskTrigger();
+                tt.initLoad();
+
                 // define the job and tie it to our HelloJob class
                 JobDetail job = newJob(TaskTrigger.class)
                         .withIdentity("SystemJob", "taskTrigger")
@@ -77,6 +83,8 @@ public class SysScheduler {
                 // Tell quartz to schedule the job using our trigger
                 sched.scheduleJob(job, trigger);
             }
+
+
 
             if (!sched.isShutdown())
                 sched.start();

@@ -2,26 +2,24 @@ package com.traits.scheduler;
 
 import com.traits.model.BaseProject;
 import com.traits.model.BaseTask;
+import com.traits.model.Configure;
 import com.traits.model.TaskCache;
 import com.traits.storage.BaseStorage;
 import com.traits.storage.MongoDBStorage;
 import com.traits.storage.MySQLStorage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.quartz.*;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Calendar;
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by YeFeng on 2016/7/17.
@@ -36,27 +34,26 @@ public class TaskTrigger implements Job {
 
     private HashMap<String, BaseProject> _projectMap;
     private HashMap<String, BaseTask> _initTaskMap;
+    private HashMap<String, BaseTask> _checkingTaskMap;
     private HashSet<String> _successOrPassedTaskSet;
 
     private static SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+    private Long triggerDelta = 1L * 60 * 10;
+    private Long ignore = 7L * 60 * 60 * 24;
 
     private Pattern depReg = Pattern.compile("(day|hour|minute|second)\\((0|-\\d+)\\)((-|\\+)\\d+)*,\\s*(\\d+)");
 
     public TaskTrigger() {
-        String configPath = this.getClass().getClassLoader().getResource("/").getPath()
-                + "conf.properties";
-        Properties confProperties = new Properties();
-        try {
-            confProperties.load(new FileInputStream(configPath));
-        } catch (IOException e) {
-            logger.debug(e.getMessage());
-        }
-        dbtype = confProperties.getProperty("task.storage", "mysql");
-        host = confProperties.getProperty("task.host", "127.0.0.1");
-        port = Integer.parseInt(confProperties.getProperty("task.port", "3306"));
-        database = confProperties.getProperty("task.db", "scheduler");
-        user = confProperties.getProperty("task.user", null);
-        passwd = confProperties.getProperty("task.password", null);
+        Configure conf = Configure.getSingleton();
+        dbtype = conf.dbtype;
+        host = conf.host;
+        port = conf.port;
+        database = conf.database;
+        user = conf.user;
+        passwd = conf.passwd;
+
+        triggerDelta = conf.triggerDelta;
+        ignore = conf.ignore;
     }
 
     public void loadProjects(BaseStorage _storage) throws Exception {
@@ -70,6 +67,13 @@ public class TaskTrigger implements Job {
         _initTaskMap = new HashMap<String, BaseTask>();
         for (BaseTask t : _storage.getInitTasks()) {
             _initTaskMap.put(t.getId(), t);
+        }
+    }
+
+    public void loadCheckingTasks(BaseStorage _storage) throws Exception {
+        _checkingTaskMap = new HashMap<String, BaseTask>();
+        for (BaseTask t : _storage.getCheckingTasks()) {
+            _checkingTaskMap.put(t.getId(), t);
         }
     }
 
@@ -155,20 +159,13 @@ public class TaskTrigger implements Job {
                             e.printStackTrace();
                             continue;
                         }
-
                     } else {
                         logger.error(String.format("dependence %s is parsed error", rule));
                         continue;
                     }
-
                 }
-
-
-
             }
         }
-
-
         return dep;
     }
 
@@ -199,9 +196,37 @@ public class TaskTrigger implements Job {
             task.setDependence_finish_rate(1.0);
             return true;
         } else {
-            task.setDependence_finish_rate(matched / total);
+            task.setDependence_finish_rate( ((double) matched) / total);
             return false;
         }
+    }
+
+    public void initLoad() {
+        logger.info(">> TaskTrigger initLoad Checking Task");
+        BaseStorage _storage = null;
+        TaskCache tc = TaskCache.getInstance();
+        try {
+            if (dbtype.equals("mysql")) {
+                _storage = new MySQLStorage(host, port, database, user, passwd);
+            } else if (dbtype.equals("mongodb")) {
+                _storage = new MongoDBStorage(host, port, database, user, passwd);
+            } else {
+                _storage = new MySQLStorage(host, port, database, user, passwd);
+            }
+
+            loadCheckingTasks(_storage);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+
+        TreeMap<Double, BaseTask> taskCacheMap = tc.get_taskMap();
+        for (BaseTask task : _checkingTaskMap.values()) {
+            taskCacheMap.put(task.getTriggertime(), task);
+        }
+
+        logger.info("<< TaskTrigger initLoad Checking Task");
     }
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -251,7 +276,7 @@ public class TaskTrigger implements Job {
                     // task does not satifies dependence
                     t.setStatus(BaseTask.Status.CHECKING);
                     t.setUpdatetime(((double) (new Date()).getTime()) / 1000.0);
-                    t.setTriggertime((((new Date()).getTime() + 60 * 10 * 1000) / 1000.0 + p.getDelay()));
+                    t.setTriggertime((((new Date()).getTime() + triggerDelta * 1000) / 1000.0 + p.getDelay()));
                     try {
                         _storage.saveOneTask(t);
                     } catch (Exception e) {
@@ -263,7 +288,10 @@ public class TaskTrigger implements Job {
             }
         }
 
-        for (Map.Entry<Double, BaseTask> t : tc.get_taskMap().entrySet()) {
+        TreeMap<Double, BaseTask> tset = tc.get_taskMap();
+
+        while (!tset.isEmpty()) {
+            Map.Entry<Double, BaseTask> t = tset.firstEntry();
             Double triggerTime = t.getKey();
             BaseTask task = t.getValue();
 
@@ -284,20 +312,30 @@ public class TaskTrigger implements Job {
                                 logger.error(e.getMessage());
                                 e.printStackTrace();
                             }
-                            tc.get_taskMap().pollFirstEntry();
+                            // tc.get_taskMap().pollFirstEntry();
+                            tset.pollFirstEntry();
                         } else {                                // does not satify dependence
-                            task.setStatus(BaseTask.Status.CHECKING);
+
                             task.setUpdatetime(((double) (new Date()).getTime()) / 1000.0);
-                            task.setTriggertime(((double) (new Date()).getTime() + 60 * 10 * 1000) / 1000.0);
+                            task.setTriggertime(((double) (new Date()).getTime() + triggerDelta * 1000) / 1000.0);
+
+                            tset.pollFirstEntry();
+
+                            // TODO check task if it exists longer than 7 days
+                            if ((long)((task.getLunchtime() + ignore) * 1000L) > (new Date()).getTime()) {
+                                task.setStatus(BaseTask.Status.CHECKING);
+                                tset.put(task.getTriggertime(), task);
+                            } else {
+                                task.setStatus(BaseTask.Status.IGNORED);
+                            }
+
                             try {
                                 _storage.saveOneTask(task);
                             } catch (Exception e) {
                                 logger.error(e.getMessage());
                                 e.printStackTrace();
                             }
-                            tc.get_taskMap().pollFirstEntry();
-                            // TODO check task if it exists longer than 30 days
-                            tc.get_taskMap().put(task.getTriggertime(), task);
+
                         }
                     } else {                                    // stop delete...
                         if (p.getStatus() == BaseProject.Status.DELETE) {
@@ -313,7 +351,7 @@ public class TaskTrigger implements Job {
                             logger.error(e.getMessage());
                             e.printStackTrace();
                         }
-                        tc.get_taskMap().pollFirstEntry();
+                        tset.pollFirstEntry();
                     }
                 } else {                                        // delete
                     task.setStatus(BaseTask.Status.DELETE);
@@ -325,7 +363,7 @@ public class TaskTrigger implements Job {
                         logger.error(e.getMessage());
                         e.printStackTrace();
                     }
-                    tc.get_taskMap().pollFirstEntry();
+                    tset.pollFirstEntry();
                 }
             } else {                                            // time don't arrive
                 break;

@@ -26,6 +26,10 @@ public class BaseStorage {
         return new ArrayList<BaseTask>();
     }
 
+    public ArrayList<BaseTask> getCheckingTasks() throws Exception {
+        return new ArrayList<BaseTask>();
+    }
+
     public HashSet<String> getSuccessOrPassedTasks() throws Exception {
         return new HashSet<String>();
     }

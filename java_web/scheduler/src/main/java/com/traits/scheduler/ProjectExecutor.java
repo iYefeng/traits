@@ -5,6 +5,7 @@ import com.traits.db.MySQLHandler;
 import com.traits.jython.JythonEvaluable;
 import com.traits.model.BaseProject;
 import com.traits.model.BaseTask;
+import com.traits.model.Configure;
 import com.traits.storage.BaseStorage;
 import com.traits.storage.MongoDBStorage;
 import com.traits.storage.MySQLStorage;
@@ -37,20 +38,13 @@ public class ProjectExecutor implements Job {
 
 
     public ProjectExecutor() {
-        String configPath = this.getClass().getClassLoader().getResource("/").getPath()
-                + "conf.properties";
-        Properties confProperties = new Properties();
-        try {
-            confProperties.load(new FileInputStream(configPath));
-        } catch (IOException e) {
-            logger.debug(e.getMessage());
-        }
-        dbtype = confProperties.getProperty("task.storage", "mysql");
-        host = confProperties.getProperty("task.host", "127.0.0.1");
-        port = Integer.parseInt(confProperties.getProperty("task.port", "3306"));
-        database = confProperties.getProperty("task.db", "scheduler");
-        user = confProperties.getProperty("task.user", null);
-        passwd = confProperties.getProperty("task.password", null);
+        Configure conf = Configure.getSingleton();
+        dbtype = conf.dbtype;
+        host = conf.host;
+        port = conf.port;
+        database = conf.database;
+        user = conf.user;
+        passwd = conf.passwd;
     }
 
     private static SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
