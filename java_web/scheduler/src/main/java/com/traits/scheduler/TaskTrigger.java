@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 public class TaskTrigger implements Job {
 
     Logger logger = Logger.getLogger("scheduler");
-    private String dbtype, host, database, table, user, passwd;
+    private String dbtype, host, database, user, passwd;
     private int port;
 
     private HashMap<String, BaseProject> _projectMap;

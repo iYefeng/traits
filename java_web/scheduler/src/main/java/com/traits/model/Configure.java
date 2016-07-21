@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.regex.Pattern;
 
 /**
  * Created by YeFeng on 2016/7/20.
@@ -22,6 +23,12 @@ public class Configure {
     public Long ignore;
     public int POOL_SIZE, maxActiveCount;
     public String msgQueue;
+
+    public String redis_host = "127.0.0.1";
+    public String redis_db = "1";
+    public Integer redis_port = 6379;
+
+    private Pattern uriReg = Pattern.compile("(\\w+)://(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)/(\\d+)");
 
 
     private Configure() {
@@ -48,6 +55,17 @@ public class Configure {
 
         POOL_SIZE = Integer.valueOf(confProperties.getProperty("conf.worker.threadpool.size", "4"));
         maxActiveCount = Integer.valueOf(confProperties.getProperty("conf.worker.maxActiveCount", "4"));
+
+        String redisTmp = confProperties.getProperty("task.message.queue", "redis://127.0.0.1:6379/1");
+        java.util.regex.Matcher mat = uriReg.matcher(redisTmp);
+        if (mat.find()) {
+            if (mat.group(1).equals("redis")) {
+                redis_host = mat.group(2);
+                redis_port = Integer.valueOf(mat.group(3));
+                redis_db = mat.group(4);
+            }
+        }
+
     }
 
     public static Configure getSingleton() {

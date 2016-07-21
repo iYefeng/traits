@@ -3,6 +3,7 @@ package com.traits.model;
 import com.traits.util.Crontab;
 import org.apache.log4j.Logger;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ import java.util.HashMap;
 
  *
  */
-public class BaseProject {
+public class BaseProject implements Serializable {
 
     Logger logger = Logger.getLogger("scheduler");
 

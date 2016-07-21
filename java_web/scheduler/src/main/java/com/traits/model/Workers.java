@@ -1,13 +1,13 @@
 package com.traits.model;
 
+import com.traits.db.RedisHandler;
 import org.apache.log4j.Logger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 
 /**
  * Created by YeFeng on 2016/7/20.
@@ -18,6 +18,7 @@ public class Workers {
     private int POOL_SIZE = 4;
 
     private final static Workers singleton = new Workers();
+    private TaskCache tc = TaskCache.getInstance();
 
     Logger logger = Logger.getLogger("scheduler");
 
@@ -32,7 +33,11 @@ public class Workers {
     }
 
     public boolean submitTask(BaseTask task) {
-        return false;
+
+        Future<BaseTask> future = threadPool.submit(task);
+        tc.getFutureList().add(future);
+
+        return true;
     }
 
     public static Workers getSingleton() {

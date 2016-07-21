@@ -52,6 +52,13 @@ public class MySQLStorage extends BaseStorage {
         return BaseProject.load(result, handler.getCurrentCount());
     }
 
+    public BaseProject getProjectById(String pid) throws SQLException {
+        HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `projectdb` WHERE `id`=%s",
+                new String[]{pid});
+        ArrayList<BaseProject> projects = BaseProject.load(result, handler.getCurrentCount());
+        return projects.size() == 0 ? null : projects.get(0);
+    }
+
     public boolean saveOneTask(BaseTask task) throws SQLException {
         boolean flag =  task.saveTask(handler);
         return flag;

@@ -3,12 +3,14 @@ package com.traits.model;
 import com.traits.db.MySQLHandler;
 import org.apache.log4j.Logger;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 
 /**
  * Created by YeFeng on 2016/5/18.
@@ -36,13 +38,14 @@ import java.util.Objects;
  KEY `idx_lunchtime` (`lunchtime`)
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
  */
-public class BaseTask implements Runnable {
+public class BaseTask implements Callable<BaseTask>, Serializable {
 
     Logger logger = Logger.getLogger("scheduler");
 
-    public void run() {
-
+    public BaseTask call() throws Exception {
+        return this;
     }
+
 
     public enum Status {
         UNKNOWN(-1), INIT(0), ACTIVE(1), RUNNING(2), SUCCESS(3),
@@ -102,6 +105,7 @@ public class BaseTask implements Runnable {
     private Double dependence_finish_rate;
     private Double triggertime;
     private Integer retry_count;
+    private String working_node;
 
     private BaseProject _project;
 
@@ -133,8 +137,9 @@ public class BaseTask implements Runnable {
         sb.append("`log`, ");
         sb.append("`dependence_finish_rate`, ");
         sb.append("`triggertime`, ");
-        sb.append("`retry_count`");
-        sb.append(") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        sb.append("`retry_count,`");
+        sb.append("`working_node`");
+        sb.append(") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         ArrayList<Object> tmp = new ArrayList<Object>();
         tmp.add(id);
@@ -150,6 +155,7 @@ public class BaseTask implements Runnable {
         tmp.add(dependence_finish_rate);
         tmp.add(transTimestamp(triggertime));
         tmp.add(retry_count);
+        tmp.add(working_node);
 
         dataList.add(tmp);
 
@@ -188,6 +194,7 @@ public class BaseTask implements Runnable {
         sb.append("dependence_finish_rate: " + dependence_finish_rate + ",\n");
         sb.append("triggertime: " + triggertime + ",\n");
         sb.append("retry_count: " + retry_count + ",\n");
+        sb.append("working_node: " + working_node + ",\n");
         sb.append("}\n");
 
         return sb.toString();
@@ -224,6 +231,8 @@ public class BaseTask implements Runnable {
             this.setTriggertime(obj == null ? 0 : (Double) obj);
         } else if (key.equals("retry_count")) {
             this.setRetry_count(obj == null ? 0 : (Integer) obj);
+        } else if (key.equals("working_node")) {
+            this.setWorking_node((String) obj);
         }
     }
 
@@ -341,5 +350,13 @@ public class BaseTask implements Runnable {
 
     public void set_project(BaseProject _project) {
         this._project = _project;
+    }
+
+    public String getWorking_node() {
+        return working_node;
+    }
+
+    public void setWorking_node(String working_node) {
+        this.working_node = working_node;
     }
 }

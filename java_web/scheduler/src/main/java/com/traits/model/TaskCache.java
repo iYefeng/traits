@@ -3,6 +3,7 @@ package com.traits.model;
 import org.apache.log4j.Logger;
 
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * Created by YeFeng on 2016/7/17.
@@ -22,6 +23,8 @@ public class TaskCache {
         }
     );
 
+    ArrayList<Future<BaseTask>> futureList = new ArrayList<Future<BaseTask>>();
+
     public TreeMap<Double, BaseTask> get_taskMap() {
         return _taskMap;
     }
@@ -34,6 +37,13 @@ public class TaskCache {
         return singleton;
     }
 
+    public ArrayList<Future<BaseTask>> getFutureList() {
+        return futureList;
+    }
+
+    public void setFutureList(ArrayList<Future<BaseTask>> futureList) {
+        this.futureList = futureList;
+    }
 
     public static void main(String[] args) {
         TaskCache t = TaskCache.getInstance();
@@ -53,6 +63,7 @@ public class TaskCache {
             System.out.println(tt.getKey());
         }
     }
+
 
 
 }
