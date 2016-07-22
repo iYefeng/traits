@@ -1,5 +1,6 @@
 package com.traits.scheduler;
 
+import com.traits.db.RedisHandler;
 import com.traits.model.BaseProject;
 import com.traits.model.BaseTask;
 import com.traits.model.Configure;
@@ -7,6 +8,8 @@ import com.traits.model.TaskCache;
 import com.traits.storage.BaseStorage;
 import com.traits.storage.MongoDBStorage;
 import com.traits.storage.MySQLStorage;
+import com.traits.util.SerializeUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.quartz.DisallowConcurrentExecution;
@@ -29,12 +32,15 @@ import java.util.regex.Pattern;
 public class TaskTrigger implements Job {
 
     Logger logger = Logger.getLogger("scheduler");
-    private String dbtype, host, database, user, passwd;
-    private int port;
+    private String dbtype, host, database, user, passwd, redis_host, redis_db;
+    private int port, redis_port;
+
+    private static RedisHandler redis_handler = null;
 
     private HashMap<String, BaseProject> _projectMap;
     private HashMap<String, BaseTask> _initTaskMap;
     private HashMap<String, BaseTask> _checkingTaskMap;
+    private HashMap<String, BaseTask> _activeTaskMap;
     private HashSet<String> _successOrPassedTaskSet;
 
     private static SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -54,6 +60,20 @@ public class TaskTrigger implements Job {
 
         triggerDelta = conf.triggerDelta;
         ignore = conf.ignore;
+
+        redis_host = conf.redis_host;
+        redis_port = conf.redis_port;
+        redis_db = conf.redis_db;
+
+        if (redis_handler == null) {
+            try {
+                redis_handler = new RedisHandler(redis_host, redis_port, redis_db);
+                logger.debug("Connected Redis");
+            } catch (Exception e) {
+                logger.error("Redis init error");
+                e.printStackTrace();
+            }
+        }
     }
 
     public void loadProjects(BaseStorage _storage) throws Exception {
@@ -77,31 +97,38 @@ public class TaskTrigger implements Job {
         }
     }
 
+    public void loadActiveTasks(BaseStorage _storage) throws Exception {
+        _activeTaskMap = new HashMap<String, BaseTask>();
+        for (BaseTask t : _storage.getActiveTasks()) {
+            _activeTaskMap.put(t.getId(), t);
+        }
+    }
+
     public void loadSuccessOrPassedTask(BaseStorage _storage) throws Exception {
         _successOrPassedTaskSet = _storage.getSuccessOrPassedTasks();
     }
 
     public static Date day(double current, int delta) {
         double day = ((long) (current / (86400.0))) * (86400L);
-        double baseTimeStamp = day - delta * 86400;
+        double baseTimeStamp = day = delta * 86400;
         return new Date((long) (baseTimeStamp * 1000));
     }
 
     public static Date hour(double current, int delta) {
         double hour = ((long) (current / (3600.0))) * (3600);
-        double baseTimeStamp = hour - delta * 3600;
+        double baseTimeStamp = hour + delta * 3600;
         return new Date((long) (baseTimeStamp * 1000));
     }
 
     public static Date minute(double current, int delta) {
         double minute = ((long) (current / (60.0))) * (60);
-        double baseTimeStamp = minute - delta * 60;
+        double baseTimeStamp = minute + delta * 60;
         return new Date((long) (baseTimeStamp * 1000));
     }
 
     public static Date second(double current, int delta) {
         double second = ((long) current);
-        double baseTimeStamp = second - delta;
+        double baseTimeStamp = second + delta;
         return new Date((long) (baseTimeStamp * 1000));
     }
 
@@ -150,7 +177,10 @@ public class TaskTrigger implements Job {
                                 }
                                 ArrayList<Date> reqDate = p.getCron().getTimeBefore(tmpd2, count);
                                 for (Date tmpdate : reqDate) {
-                                    dep.add(String.format("%s @ %s", p.getId(), df.format(tmpdate)));
+                                    for (int j = 0; j < p.getNum_workers(); ++j) {
+                                        String taskName = String.format("%s @ %s", p.getId(), df.format(tmpdate));
+                                        dep.add(DigestUtils.md5Hex(taskName) + "#" + String.valueOf(j) );
+                                    }
                                 }
                             }
                         } catch (Exception e) {
@@ -181,7 +211,7 @@ public class TaskTrigger implements Job {
         ArrayList<String> requireTasks = parseDependence(project, _projectMap, lunchDate);
 
         for (String s : requireTasks) {
-            logger.debug("requre Task: " + s);
+            logger.debug("requre Task id: " + s);
         }
 
         int total = requireTasks.size();
@@ -202,7 +232,7 @@ public class TaskTrigger implements Job {
     }
 
     public void initLoad() {
-        logger.info(">> TaskTrigger initLoad Checking Task");
+        logger.info(">> TaskTrigger initLoad Task");
         BaseStorage _storage = null;
         TaskCache tc = TaskCache.getInstance();
         try {
@@ -215,6 +245,7 @@ public class TaskTrigger implements Job {
             }
 
             loadCheckingTasks(_storage);
+            loadActiveTasks(_storage);
         } catch (Exception e) {
             logger.error(e.getMessage());
             e.printStackTrace();
@@ -226,13 +257,36 @@ public class TaskTrigger implements Job {
             taskCacheMap.put(task.getTriggertime(), task);
         }
 
-        logger.info("<< TaskTrigger initLoad Checking Task");
+//        for (BaseTask task : _activeTaskMap.values()) {
+//            task.setUpdatetime(((double) (new Date()).getTime()) / 1000.0);
+//            try {
+//                _storage.saveOneTask(task);
+//            } catch (Exception e) {
+//                logger.error(e.getMessage());
+//                e.printStackTrace();
+//            }
+//            redis_handler.getHandler().rpush(
+//                    "scheduler.task.queue".getBytes(),
+//                    SerializeUtil.serialize(task));
+//        }
+
+
+        _storage.release();
+        logger.info("<< TaskTrigger initLoad Task");
     }
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
         logger.info(">> TaskTrigger execute");
         BaseStorage _storage = null;
         TaskCache tc = TaskCache.getInstance();
+
+//        try {
+//            redis_handler = new RedisHandler(redis_host, redis_port, redis_db);
+//            System.out.println(redis_handler.getHandler().get("test"));
+//        } catch (Exception e) {
+//            logger.error(e.getMessage());
+//            e.printStackTrace();
+//        }
 
         try {
             if (dbtype.equals("mysql")) {
@@ -271,7 +325,11 @@ public class TaskTrigger implements Job {
                         logger.error(e.getMessage());
                         e.printStackTrace();
                     }
-
+                    if (redis_handler != null) {
+                        redis_handler.getHandler().rpush(
+                                "scheduler.task.queue".getBytes(),
+                                SerializeUtil.serialize(t));
+                    }
                 } else {
                     // task does not satifies dependence
                     t.setStatus(BaseTask.Status.CHECKING);
@@ -313,6 +371,12 @@ public class TaskTrigger implements Job {
                                 e.printStackTrace();
                             }
                             // tc.get_taskMap().pollFirstEntry();
+
+                            if (redis_handler != null) {
+                                redis_handler.getHandler().rpush(
+                                        "scheduler.task.queue".getBytes(),
+                                        SerializeUtil.serialize(task));
+                            }
                             tset.pollFirstEntry();
                         } else {                                // does not satify dependence
 
@@ -370,7 +434,7 @@ public class TaskTrigger implements Job {
             }
         }
 
-
+        _storage.release();
         logger.info("<< TaskTrigger execute");
     }
 }

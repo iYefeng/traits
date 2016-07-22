@@ -89,3 +89,5 @@
 [DEBUG] 2016-07-18 01:19:33487 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
 [DEBUG] 2016-07-18 01:20:01211 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
 [DEBUG] 2016-07-18 01:20:09408 MySQLHandler.java:82(MySQLHandler:main:0): SELECT * from `projectdb`
+[DEBUG] 2016-07-23 02:20:5371 RedisHandler.java:23(scheduler:main:0): new Jedis
+[DEBUG] 2016-07-23 02:21:1683 RedisHandler.java:23(scheduler:main:0): new Jedis

@@ -35,14 +35,12 @@ public class MySQLStorage extends BaseStorage {
         this.handler = new MySQLHandler(host, port, database, user, passwd);
     }
 
-    protected void finalize()
-    {
-        this.handler.release();
+    public void release() {
+        handler.release();
     }
 
     public ArrayList<BaseProject> getProjects() throws SQLException {
         HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `projectdb`");
-
         return BaseProject.load(result, handler.getCurrentCount());
     }
 
@@ -53,7 +51,7 @@ public class MySQLStorage extends BaseStorage {
     }
 
     public BaseProject getProjectById(String pid) throws SQLException {
-        HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `projectdb` WHERE `id`=%s",
+        HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `projectdb` WHERE `id`='%s'",
                 new String[]{pid});
         ArrayList<BaseProject> projects = BaseProject.load(result, handler.getCurrentCount());
         return projects.size() == 0 ? null : projects.get(0);
@@ -66,13 +64,16 @@ public class MySQLStorage extends BaseStorage {
 
     public ArrayList<BaseTask> getInitTasks() throws Exception {
         HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `taskdb` where `status`=0");
-
         return BaseTask.load(result, handler.getCurrentCount());
     }
 
     public ArrayList<BaseTask> getCheckingTasks() throws Exception {
         HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `taskdb` where `status`=7");
+        return BaseTask.load(result, handler.getCurrentCount());
+    }
 
+    public ArrayList<BaseTask> getActiveTasks() throws Exception {
+        HashMap<String, ArrayList<Object>> result = handler.query("SELECT * from `taskdb` where `status`=1");
         return BaseTask.load(result, handler.getCurrentCount());
     }
 

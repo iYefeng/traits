@@ -6,7 +6,9 @@ import org.quartz.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Properties;
+import java.util.Random;
 
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -63,7 +65,7 @@ public class SysScheduler {
             }
 
             if (schedulerType.contains("taskTrigger")) {
-                logger.info("run as projectTrigger");
+                logger.info("run as taskTrigger");
 
                 TaskTrigger tt = new TaskTrigger();
                 tt.initLoad();
@@ -77,14 +79,32 @@ public class SysScheduler {
                         .withIdentity("SysytemTrigger", "taskTrigger")
                         .startNow()
                         .withSchedule(simpleSchedule()
-                                .withIntervalInSeconds(60)
+                                .withIntervalInSeconds(20)
                                 .repeatForever())
                         .build();
                 // Tell quartz to schedule the job using our trigger
                 sched.scheduleJob(job, trigger);
             }
 
+            if (schedulerType.contains("taskWorker")) {
+                logger.info("run as taskWorker");
+                Random r = new Random((new Date()).getTime());
 
+                // define the job and tie it to our HelloJob class
+                JobDetail job = newJob(WorkTrigger.class)
+                        .withIdentity("SystemJob", "WorkTrigger")
+                        .build();
+                // Trigger the job to run now, and then every 40 seconds
+                Trigger trigger = newTrigger()
+                        .withIdentity("SysytemTrigger", "WorkTrigger")
+                        .startAt(new Date((new Date()).getTime() + r.nextInt(1000)))
+                        .withSchedule(simpleSchedule()
+                                .withIntervalInSeconds(1)
+                                .repeatForever())
+                        .build();
+                // Tell quartz to schedule the job using our trigger
+                sched.scheduleJob(job, trigger);
+            }
 
             if (!sched.isShutdown())
                 sched.start();

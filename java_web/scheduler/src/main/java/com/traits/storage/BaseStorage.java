@@ -14,6 +14,8 @@ public class BaseStorage {
 
     public BaseStorage() {}
 
+    public void release() {}
+
     public BaseStorage(String host, int port, String database, String user, String passwd) {}
 
     public ArrayList<BaseProject> getProjects() throws Exception {
@@ -33,6 +35,10 @@ public class BaseStorage {
     }
 
     public ArrayList<BaseTask> getCheckingTasks() throws Exception {
+        return new ArrayList<BaseTask>();
+    }
+
+    public ArrayList<BaseTask> getActiveTasks() throws Exception {
         return new ArrayList<BaseTask>();
     }
 

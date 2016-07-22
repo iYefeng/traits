@@ -23,8 +23,6 @@ public class TaskCache {
         }
     );
 
-    ArrayList<Future<BaseTask>> futureList = new ArrayList<Future<BaseTask>>();
-
     public TreeMap<Double, BaseTask> get_taskMap() {
         return _taskMap;
     }
@@ -35,14 +33,6 @@ public class TaskCache {
 
     public static TaskCache getInstance() {
         return singleton;
-    }
-
-    public ArrayList<Future<BaseTask>> getFutureList() {
-        return futureList;
-    }
-
-    public void setFutureList(ArrayList<Future<BaseTask>> futureList) {
-        this.futureList = futureList;
     }
 
     public static void main(String[] args) {

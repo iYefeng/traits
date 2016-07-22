@@ -74,7 +74,8 @@ public class ProjectExecutor implements Job {
         }
 
         String taskName = String.format("%s @ %s", project.getId(), df.format(lunchTime));
-        String taskId = DigestUtils.md5Hex(taskName);
+
+
 
         HashMap<String, Object> args = null;
 
@@ -98,30 +99,35 @@ public class ProjectExecutor implements Job {
         String argsJsonStr = JSON.toJSONString(args);
         logger.debug(argsJsonStr);
 
-        task.setProject_id(project.getId());
-        task.setId(taskId);
-        task.setName(taskName);
-        task.setLunchtime(((double) lunchTime.getTime()) / 1000.0);
-        task.setStarttime(((double) starttime.getTime()) / 1000.0);
-        task.setStatus(BaseTask.Status.INIT);
-        task.setArgs(argsJsonStr);
-        task.setUpdatetime(((double) starttime.getTime()) / 1000.0);
+        for (int j = 0; j < project.getNum_workers(); ++j) {
+            String taskId = DigestUtils.md5Hex(taskName) + "#" + String.valueOf(j);
+            task.setId(taskId);
+            task.setProject_id(project.getId());
+            task.setName(taskName);
+            task.setLunchtime(((double) lunchTime.getTime()) / 1000.0);
+            task.setStarttime(((double) starttime.getTime()) / 1000.0);
+            task.setStatus(BaseTask.Status.INIT);
+            task.setArgs(argsJsonStr);
+            task.setUpdatetime(((double) starttime.getTime()) / 1000.0);
 
 
-        try {
-            if (dbtype.equals("mysql")) {
-                _storage = new MySQLStorage(host, port, database, user, passwd);
-            } else if (dbtype.equals("mongodb")) {
-                _storage = new MongoDBStorage(host, port, database, user, passwd);
+            try {
+                if (dbtype.equals("mysql")) {
+                    _storage = new MySQLStorage(host, port, database, user, passwd);
+                } else if (dbtype.equals("mongodb")) {
+                    _storage = new MongoDBStorage(host, port, database, user, passwd);
+                } else {
+                    _storage = new MySQLStorage(host, port, database, user, passwd);
+                }
+
+                _storage.saveOneTask(task);
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                e.printStackTrace();
             }
-
-            _storage.saveOneTask(task);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
         }
 
-
+        _storage.release();
         logger.info("<< ProjectExecutor execute");
     }
 }

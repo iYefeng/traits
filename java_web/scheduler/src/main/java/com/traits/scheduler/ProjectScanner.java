@@ -86,6 +86,7 @@ public class ProjectScanner {
             return false;
         }
 
+        _storage.release();
         logger.info("<< loading projects");
         return true;
     }

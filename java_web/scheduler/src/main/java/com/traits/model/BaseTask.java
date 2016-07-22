@@ -1,6 +1,7 @@
 package com.traits.model;
 
 import com.traits.db.MySQLHandler;
+import com.traits.scheduler.SysScheduler;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;
@@ -38,12 +39,19 @@ import java.util.concurrent.Callable;
  KEY `idx_lunchtime` (`lunchtime`)
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
  */
-public class BaseTask implements Callable<BaseTask>, Serializable {
+public class BaseTask implements Callable<Integer>, Serializable {
 
-    Logger logger = Logger.getLogger("scheduler");
+    static final Logger logger = Logger.getLogger("scheduler");
 
-    public BaseTask call() throws Exception {
-        return this;
+    public Integer call() throws Exception {
+        System.out.println(String.format("\n*** Running task %s\n", name));
+        for (int i = 0; i < 5; ++i) {
+            Thread.sleep(1000);
+            System.out.println(String.format("Sleeping Task %s", name));
+        }
+
+        System.out.println(String.format("\nRunning task %s\n", name));
+        return 0;
     }
 
 
@@ -137,7 +145,7 @@ public class BaseTask implements Callable<BaseTask>, Serializable {
         sb.append("`log`, ");
         sb.append("`dependence_finish_rate`, ");
         sb.append("`triggertime`, ");
-        sb.append("`retry_count,`");
+        sb.append("`retry_count`, ");
         sb.append("`working_node`");
         sb.append(") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 

@@ -51,12 +51,15 @@ public class MySQLHandler {
         try {
             if(mStatement != null) {
                 mStatement.close();
+                mStatement = null;
             }
             if(mPreparedStatement != null) {
                 mPreparedStatement.close();
+                mPreparedStatement = null;
             }
             if(mDBConnection != null) {
                 mDBConnection.close();
+                mDBConnection = null;
             }
         } catch (SQLException e) {
             e.printStackTrace();

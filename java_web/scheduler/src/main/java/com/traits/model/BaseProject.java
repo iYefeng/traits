@@ -38,7 +38,7 @@ import java.util.HashMap;
  */
 public class BaseProject implements Serializable {
 
-    Logger logger = Logger.getLogger("scheduler");
+    static final Logger logger = Logger.getLogger("scheduler");
 
     public enum Status {
         UNKNOWN(-1), STOP(0), RUNNING(1), DELETE(2), DEBUG(3),
@@ -122,6 +122,7 @@ public class BaseProject implements Serializable {
     private Integer retry;
     private Crontab cron;
     private String script;
+    private Integer num_workers;
 
     private Status _sysStatus;
 
@@ -160,6 +161,7 @@ public class BaseProject implements Serializable {
         this.cron = other.cron;
         this.retry = other.retry;
         this.script = other.script;
+        this.num_workers = other.num_workers;
     }
 
 
@@ -183,6 +185,7 @@ public class BaseProject implements Serializable {
         sb.append("retry: " + retry + "\n");
         String tmpscript = script.length() > 100 ? script.substring(0, 100) + "..." : script;
         sb.append("script: " + tmpscript + "\n");
+        sb.append("num_workers: " + num_workers + "\n");
         sb.append("}\n");
 
         return sb.toString();
@@ -228,6 +231,11 @@ public class BaseProject implements Serializable {
             this.setRetry(obj == null ? 0 : (Integer) obj);
         } else if (key.equals("script")) {
             this.setScript((String) obj);
+        } else if (key.equals("num_workers")) {
+            this.setNum_workers(obj == null ? 1 : (Integer) obj);
+            if (this.getNum_workers() == 0) {
+                this.setNum_workers(1);
+            }
         }
     }
 
@@ -382,5 +390,13 @@ public class BaseProject implements Serializable {
 
     public void set_sysStatus(Status _sysStatus) {
         this._sysStatus = _sysStatus;
+    }
+
+    public Integer getNum_workers() {
+        return num_workers;
+    }
+
+    public void setNum_workers(Integer num_workers) {
+        this.num_workers = num_workers;
     }
 }

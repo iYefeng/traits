@@ -20,6 +20,7 @@ public class RedisHandler {
         if (db != null && Integer.valueOf(db) > 0) {
             handler.select(Integer.valueOf(db));
         }
+        logger.debug("new Jedis");
     }
 
     public Jedis getHandler() {
@@ -28,5 +29,10 @@ public class RedisHandler {
 
     public void setHandler(Jedis handler) {
         this.handler = handler;
+    }
+
+    public static void main(String[] args) throws Exception {
+        RedisHandler r = new RedisHandler("192.168.238.200", 6379, "1");
+        System.out.println(r.getHandler().get("test"));
     }
 }
