@@ -1,0 +1,7 @@
+2016-07-28 22:39:38,323 INFO message
+2016-07-28 22:40:00,589 INFO message
+[INFO] (14) 2016-07-28 22:50:04,401:message
+[INFO] (logger_example.py:14) 2016-07-28 22:50:35,160:message
+[INFO] (logger_example.py:14) 2016-07-28 22:50:47,250: message
+[INFO] (logger_example.py:25) 2016-07-28 22:56:11,298: message
+[INFO] (logger_example.py:25) 2016-07-28 22:56:13,177: message
