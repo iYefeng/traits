@@ -1,0 +1,12 @@
+/* 
+    Created on : Sep 9, 2015, 11:24:14 PM
+    Author     : luodajun
+*/
+
+.footer
+{
+    height: 40px;
+    background-color: #f3f3f3;
+    border-top: 1px solid #DDD;
+    padding: 10px 30px;
+}

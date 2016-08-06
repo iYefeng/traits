@@ -4,6 +4,7 @@
 *.swp
 *.exe
 *.stackdump
+.DS_Store
 java_cpp/jars/
 java_cpp/bin/
 java_cpp/thirdparty/

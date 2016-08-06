@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0079)http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>机器学习中的数学(5)-强大的矩阵奇异值分解(SVD)及其应用 - LeftNotEasy - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./强大的矩阵奇异值分解(SVD)及其应用_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./强大的矩阵奇异值分解(SVD)及其应用_files/bundle-kubrick.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/LeftNotEasy/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/LeftNotEasy/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/LeftNotEasy/wlwmanifest.xml">
+<script src="./强大的矩阵奇异值分解(SVD)及其应用_files/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'LeftNotEasy', cb_enable_mathjax=false;</script>
+<script src="./强大的矩阵奇异值分解(SVD)及其应用_files/blog-common.js" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<div id="header">
+    
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/LeftNotEasy/">LeftNotEasy - Wangda Tan</a></h1>
+<p id="tagline">关注于 机器学习、数据挖掘、并行计算、数学</p>
+</div>
+<div id="wrapper">
+<div id="main">
+    
+<div id="post_detail">
+	<div class="post">
+		<h2>
+			<a id="cb_post_title_url" href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html">机器学习中的数学(5)-强大的矩阵奇异值分解(SVD)及其应用</a>
+		</h2>
+		<div class="postText"><div id="cnblogs_post_body"><p><strong><font color="#0080ff" size="4">版权声明：</font></strong></p>  <p>&nbsp;&nbsp;&nbsp; 本文由LeftNotEasy发布于<a href="http://leftnoteasy.cnblogs.com/">http://leftnoteasy.cnblogs.com</a>, 本文可以被全部的转载或者部分使用，但请注明出处，如果有问题，请联系<a href="mailto:wheeleast@gmail.com">wheeleast@gmail.com</a></p>  <p><strong><font color="#0080ff" size="4">前言：</font></strong></p>  <p>&nbsp;&nbsp;&nbsp; 上一次写了关于<a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/08/lda-and-pca-machine-learning.html">PCA与LDA</a>的文章，PCA的实现一般有两种，一种是用特征值分解去实现的，一种是用奇异值分解去实现的。在上篇文章中便是基于特征值分解的一种解释。特征值和奇异值在大部分人的印象中，往往是停留在纯粹的数学计算中。而且线性代数或者矩阵论里面，也很少讲任何跟特征值与奇异值有关的应用背景。奇异值分解是一个有着很明显的物理意义的一种方法，它可以将一个比较复杂的矩阵用更小更简单的几个子矩阵的相乘来表示，这些小矩阵描述的是矩阵的重要的特性。就像是描述一个人一样，给别人描述说这个人长得浓眉大眼，方脸，络腮胡，而且带个黑框的眼镜，这样寥寥的几个特征，就让别人脑海里面就有一个较为清楚的认识，实际上，人脸上的特征是有着无数种的，之所以能这么描述，是因为人天生就有着非常好的抽取重要特征的能力，让机器学会抽取重要的特征，SVD是一个重要的方法。</p>  <p>&nbsp;&nbsp;&nbsp; 在机器学习领域，有相当多的应用与奇异值都可以扯上关系，比如做feature reduction的PCA，做数据压缩（以图像压缩为代表）的算法，还有做搜索引擎语义层次检索的LSI（Latent Semantic Indexing）</p>  <p>&nbsp;&nbsp;&nbsp; 另外在这里抱怨一下，之前在百度里面搜索过SVD，出来的结果都是俄罗斯的一种狙击枪（AK47同时代的），是因为穿越火线这个游戏里面有一把狙击枪叫做SVD，而在Google上面搜索的时候，出来的都是奇异值分解（英文资料为主）。想玩玩战争游戏，玩玩COD不是非常好吗，玩山寨的CS有神马意思啊。国内的网页中的话语权也被这些没有太多营养的帖子所占据。真心希望国内的气氛能够更浓一点，搞游戏的人真正是喜欢制作游戏，搞Data Mining的人是真正喜欢挖数据的，都不是仅仅为了混口饭吃，这样谈超越别人才有意义，中文文章中，能踏踏实实谈谈技术的太少了，改变这个状况，从我自己做起吧。</p>  <p>&nbsp;&nbsp;&nbsp; 前面说了这么多，本文主要关注奇异值的一些特性，另外还会稍稍提及奇异值的计算，不过本文不准备在如何计算奇异值上展开太多。另外，本文里面有部分不算太深的线性代数的知识，如果完全忘记了线性代数，看本文可能会有些困难。</p>  <p><strong><font color="#0080ff" size="4">一、奇异值与特征值基础知识：</font></strong></p>  <p>&nbsp;&nbsp;&nbsp; 特征值分解和奇异值分解在机器学习领域都是属于满地可见的方法。两者有着很紧密的关系，我在接下来会谈到，特征值分解和奇异值分解的目的都是一样，就是提取出一个矩阵最重要的特征。先谈谈特征值分解吧：</p>  <p><font size="4">&nbsp;&nbsp; 1）<strong>特征值：</strong></font></p>  <p>&nbsp;&nbsp;&nbsp; 如果说一个向量v是方阵A的特征向量，将一定可以表示成下面的形式：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226321862.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="34" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/20110119222632467.png" width="84" border="0"></a></p>  <p>&nbsp;&nbsp;&nbsp; 这时候λ就被称为特征向量v对应的特征值，一个矩阵的一组特征向量是一组正交向量。特征值分解是将一个矩阵分解成下面的形式：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226321023.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="38" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226327992.png" width="112" border="0"></a></p>  <p>&nbsp;&nbsp;&nbsp; 其中Q是这个矩阵A的特征向量组成的矩阵，Σ是一个对角阵，每一个对角线上的元素就是一个特征值。我这里引用了一些参考文献中的内容来说明一下。首先，要明确的是，一个矩阵其实就是一个线性变换，因为一个矩阵乘以一个向量后得到的向量，其实就相当于将这个向量进行了线性变换。比如说下面的一个矩阵：</p>  <p>&nbsp;&nbsp;&nbsp; <a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/20110119222632500.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="55" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226323008.png" width="105" border="0"></a>&nbsp;&nbsp;&nbsp; 它其实对应的线性变换是下面的形式：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226326073.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="170" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226323913.png" width="371" border="0"></a>&nbsp;&nbsp;&nbsp; 因为这个矩阵M乘以一个向量(x,y)的结果是：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226334470.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="58" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226335026.png" width="162" border="0"></a>&nbsp;&nbsp;&nbsp; 上面的矩阵是对称的，所以这个变换是一个对x，y轴的方向一个拉伸变换（每一个对角线上的元素将会对一个维度进行拉伸变换，当值&gt;1时，是拉长，当值&lt;1时时缩短），当矩阵不是对称的时候，假如说矩阵是下面的样子：</p>  <p>&nbsp;</p>  <p>&nbsp;</p>  <p>&nbsp;</p>  <p>&nbsp;</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226337534.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="53" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226336454.png" width="100" border="0"></a> </p>  <p>&nbsp;&nbsp;&nbsp; 它所描述的变换是下面的样子：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226333107.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="171" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226334536.png" width="366" border="0"></a></p>  <p>&nbsp;&nbsp;&nbsp; 这其实是在平面上对一个轴进行的拉伸变换（如蓝色的箭头所示），在图中，蓝色的箭头是一个最<strong>主要的</strong>变化方向（变化方向可能有不止一个），<strong>如果我们想要描述好一个变换，那我们就描述好这个变换主要的变化方向就好了</strong>。反过头来看看之前特征值分解的式子，分解得到的Σ矩阵是一个对角阵，里面的特征值是由大到小排列的，这些特征值所对应的特征向量就是描述这个矩阵变化方向（从主要的变化到次要的变化排列）</p>  <p>&nbsp;&nbsp;&nbsp; 当矩阵是高维的情况下，那么这个矩阵就是高维空间下的一个线性变换，这个线性变化可能没法通过图片来表示，但是可以想象，这个变换也同样有很多的变换方向，我们通过特征值分解得到的前N个特征向量，那么就对应了这个矩阵最主要的N个变化方向。我们利用这前N个变化方向，就可以近似这个矩阵（变换）。也就是之前说的：<strong>提取这个矩阵最重要的特征。</strong>总结一下，特征值分解可以得到特征值与特征向量，特征值表示的是这个特征到底有多重要，而特征向量表示这个特征是什么，可以将每一个特征向量理解为一个线性的子空间，我们可以利用这些线性的子空间干很多的事情。不过，<strong>特征值分解也有很多的局限，比如说变换的矩阵必须是方阵。</strong></p>  <p>&nbsp;&nbsp; （说了这么多特征值变换，不知道有没有说清楚，请各位多提提意见。）</p>  <p>&nbsp;</p>  <p><font size="4"><strong>&nbsp;&nbsp; 2）奇异值：</strong></font></p>  <p>&nbsp;&nbsp;&nbsp; 下面谈谈奇异值分解。特征值分解是一个提取矩阵特征很不错的方法，但是它只是对方阵而言的，在现实的世界中，我们看到的大部分矩阵都不是方阵，比如说有N个学生，每个学生有M科成绩，这样形成的一个N * M的矩阵就不可能是方阵，<strong>我们怎样才能描述这样普通的矩阵呢的重要特征呢？</strong>奇异值分解可以用来干这个事情，<strong>奇异值分解是一个能适用于任意的矩阵的一种分解的方法</strong>：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226335092.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="40" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226332060.png" width="118" border="0"></a>&nbsp;&nbsp;&nbsp; 假设A是一个N * M的矩阵，那么得到的U是一个N * N的方阵（里面的向量是正交的，U里面的向量称为左奇异向量），Σ是一个N * M的矩阵（除了对角线的元素都是0，对角线上的元素称为奇异值），V’(V的转置)是一个N * N的矩阵，里面的向量也是正交的，V里面的向量称为右奇异向量），从图片来反映几个相乘的矩阵的大小可得下面的图片</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226341537.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="152" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226342650.png" width="439" border="0"></a> </p>  <p>&nbsp;&nbsp;&nbsp; 那么奇异值和特征值是怎么对应起来的呢？首先，我们将一个矩阵A的转置 * A，将会得到一个方阵，我们用这个方阵求特征值可以得到：<a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226349618.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="44" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226348223.png" width="153" border="0"></a>&nbsp;&nbsp;&nbsp; 这里得到的v，就是我们上面的右奇异向量。此外我们还可以得到：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226344111.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="104" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226346304.png" width="100" border="0"></a>&nbsp;&nbsp;&nbsp; 这里的σ就是上面说的奇异值，u就是上面说的左奇异向量。奇异值σ跟特征值类似，在矩阵Σ中也是从大到小排列，而且σ的减少特别的快，<strong>在很多情况下，前10%甚至1%的奇异值的和就占了全部的奇异值之和的99%以上了</strong>。也就是说，我们也可以用前r大的奇异值来近似描述矩阵，这里定义一下<strong>部分奇异值分解</strong>：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226359684.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="45" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226358289.png" width="204" border="0"></a></p>  <p>&nbsp;&nbsp;&nbsp; r是一个远小于m、n的数，这样矩阵的乘法看起来像是下面的样子：</p>  <p>&nbsp;</p>  <p>&nbsp;</p>  <p>&nbsp;</p>  <p>&nbsp;</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226359717.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="184" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226356370.png" width="352" border="0"></a> </p>  <p>&nbsp;&nbsp;&nbsp; 右边的三个矩阵相乘的结果将会是一个接近于A的矩阵，在这儿，r越接近于n，则相乘的结果越接近于A。而这三个矩阵的面积之和（在存储观点来说，矩阵面积越小，存储量就越小）要远远小于原始的矩阵A，我们如果想要压缩空间来表示原矩阵A，我们存下这里的三个矩阵：U、Σ、V就好了。</p>  <p>&nbsp;</p>  <p><font color="#0080ff" size="4"><strong>二、奇异值的计算：</strong></font></p>  <p>&nbsp;&nbsp;&nbsp; 奇异值的计算是一个难题，是一个O(N^3)的算法。在单机的情况下当然是没问题的，matlab在一秒钟内就可以算出1000 * 1000的矩阵的所有奇异值，但是当矩阵的规模增长的时候，计算的复杂度呈3次方增长，就需要并行计算参与了。Google的<strong>吴军</strong>老师在<strong>数学之美</strong>系列谈到SVD的时候，说起Google实现了SVD的并行化算法，说这是对人类的一个贡献，但是也没有给出具体的计算规模，也没有给出太多有价值的信息。</p>  <p>&nbsp;&nbsp;&nbsp; 其实SVD还是可以用并行的方式去实现的，在解大规模的矩阵的时候，一般使用迭代的方法，当矩阵的规模很大（比如说上亿）的时候，迭代的次数也可能会上亿次，如果使用Map-Reduce框架去解，则每次Map-Reduce完成的时候，都会涉及到写文件、读文件的操作。个人猜测Google云计算体系中除了Map-Reduce以外应该还有类似于MPI的计算模型，也就是节点之间是保持通信，数据是常驻在内存中的，这种计算模型比Map-Reduce在解决迭代次数非常多的时候，要快了很多倍。</p>  <p>&nbsp;&nbsp;&nbsp; <a href="http://en.wikipedia.org/wiki/Lanczos_algorithm">Lanczos迭代</a>就是一种解<strong>对称方阵部分特征值</strong>的方法（之前谈到了，解A’* A得到的对称方阵的特征值就是解A的右奇异向量），是将一个对称的方程化为一个三对角矩阵再进行求解。按网上的一些文献来看，Google应该是用这种方法去做的奇异值分解的。请见Wikipedia上面的一些引用的论文，如果理解了那些论文，也“几乎”可以做出一个SVD了。</p>  <p>&nbsp;&nbsp;&nbsp; 由于奇异值的计算是一个很枯燥，纯数学的过程，而且前人的研究成果（论文中）几乎已经把整个程序的流程图给出来了。更多的关于奇异值计算的部分，将在后面的参考文献中给出，这里不再深入，我还是focus在奇异值的应用中去。</p>  <p>&nbsp;</p>  <p><font color="#0080ff" size="4"><strong>三、奇异值与主成分分析（PCA）：</strong></font></p>  <p>&nbsp;&nbsp;&nbsp;&nbsp; 主成分分析在上一节里面也讲了一些，这里主要谈谈如何用SVD去解PCA的问题。PCA的问题其实是一个基的变换，使得变换后的数据有着最大的方差。方差的大小描述的是一个变量的信息量，我们在讲一个东西的稳定性的时候，往往说要减小方差，如果一个模型的方差很大，那就说明模型不稳定了。但是对于我们用于机器学习的数据（主要是训练数据），方差大才有意义，不然输入的数据都是同一个点，那方差就为0了，这样输入的多个数据就等同于一个数据了。以下面这张图为例子：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226359750.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="184" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226357275.png" width="240" border="0"></a>&nbsp;&nbsp;&nbsp;&nbsp; 这个假设是一个摄像机采集一个物体运动得到的图片，上面的点表示物体运动的位置，假如我们想要用一条直线去拟合这些点，那我们会选择什么方向的线呢？当然是图上标有signal的那条线。如果我们把这些点单纯的投影到x轴或者y轴上，最后在x轴与y轴上得到的方差是相似的（因为这些点的趋势是在45度左右的方向，所以投影到x轴或者y轴上都是类似的），如果我们使用原来的xy坐标系去看这些点，容易看不出来这些点真正的方向是什么。但是如果我们进行坐标系的变化，横轴变成了signal的方向，纵轴变成了noise的方向，则就很容易发现什么方向的方差大，什么方向的方差小了。</p>  <p>&nbsp;&nbsp;&nbsp; 一般来说，方差大的方向是信号的方向，方差小的方向是噪声的方向，我们在数据挖掘中或者数字信号处理中，往往要提高信号与噪声的比例，也就是信噪比。对上图来说，如果我们只保留signal方向的数据，也可以对原数据进行不错的近似了。</p>  <p>&nbsp;&nbsp;&nbsp; PCA的全部工作简单点说，就是对原始的空间中顺序地找一组相互正交的坐标轴，第一个轴是使得方差最大的，第二个轴是在与第一个轴正交的平面中使得方差最大的，第三个轴是在与第1、2个轴正交的平面中方差最大的，这样假设在N维空间中，我们可以找到N个这样的坐标轴，我们取前r个去近似这个空间，这样就从一个N维的空间压缩到r维的空间了，但是我们选择的r个坐标轴能够使得空间的压缩使得数据的损失最小。</p>  <p>&nbsp;&nbsp;&nbsp; 还是假设我们矩阵每一行表示一个样本，每一列表示一个feature，用矩阵的语言来表示，将一个m * n的矩阵A的进行坐标轴的变化，P就是一个变换的矩阵从一个N维的空间变换到另一个N维的空间，在空间中就会进行一些类似于旋转、拉伸的变化。</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226367831.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="44" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226366436.png" width="160" border="0"></a></p>  <p>&nbsp;&nbsp;&nbsp; 而将一个m * n的矩阵A变换成一个m * r的矩阵，这样就会使得本来有n个feature的，变成了有r个feature了（r &lt; n)，这r个其实就是对n个feature的一种提炼，我们就把这个称为feature的压缩。用数学语言表示就是：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226361452.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="43" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226364833.png" width="167" border="0"></a>&nbsp;&nbsp;&nbsp; 但是这个怎么和SVD扯上关系呢？之前谈到，SVD得出的奇异向量也是从奇异值由大到小排列的，按PCA的观点来看，就是方差最大的坐标轴就是第一个奇异向量，方差次大的坐标轴就是第二个奇异向量…我们回忆一下之前得到的SVD式子：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226363437.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="43" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226366818.png" width="224" border="0"></a>&nbsp;&nbsp;&nbsp;&nbsp; 在矩阵的两边同时乘上一个矩阵V，由于V是一个正交的矩阵，所以V转置乘以V得到单位阵I，所以可以化成后面的式子</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226365422.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="81" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226374899.png" width="304" border="0"></a>&nbsp;&nbsp;&nbsp;&nbsp; 将后面的式子与A * P那个m * n的矩阵变换为m * r的矩阵的式子对照看看，在这里，其实V就是P，也就是一个变化的向量。这里是将一个m * n 的矩阵压缩到一个m * r的矩阵，也就是对列进行压缩，如果我们想对行进行压缩（在PCA的观点下，对行进行压缩可以理解为，将一些相似的sample合并在一起，或者将一些没有太大价值的sample去掉）怎么办呢？同样我们写出一个通用的行压缩例子：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226375455.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="39" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226374060.png" width="164" border="0"></a>&nbsp;&nbsp;&nbsp; 这样就从一个m行的矩阵压缩到一个r行的矩阵了，对SVD来说也是一样的，我们对SVD分解的式子两边乘以U的转置U'</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226377440.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="51" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226374408.png" width="240" border="0"></a>&nbsp;&nbsp;&nbsp; 这样我们就得到了对行进行压缩的式子。可以看出，其实PCA几乎可以说是对SVD的一个包装，如果我们实现了SVD，那也就实现了PCA了，而且更好的地方是，有了SVD，我们就可以得到两个方向的PCA，如果我们对A’A进行特征值的分解，只能得到一个方向的PCA。</p>  <p>&nbsp;</p>  <p><font color="#0080ff" size="4"><strong>四、奇异值与潜在语义索引LSI：</strong></font></p>  <p>&nbsp;&nbsp;&nbsp;&nbsp; 潜在语义索引（Latent Semantic Indexing）与PCA不太一样，至少不是实现了SVD就可以直接用的，不过LSI也是一个严重依赖于SVD的算法，之前吴军老师在<a href="http://www.google.com.hk/ggblog/googlechinablog/2006/12/blog-post_8935.html">矩阵计算与文本处理中的分类问题</a>中谈到：</p>  <p><em><font size="4">&nbsp;&nbsp;&nbsp; “三个矩阵有非常清楚的物理含义。第一个矩阵X中的每一行表示意思相关的一类词，其中的每个非零元素表示这类词中每个词的重要性（或者说相关性），数值越大越相关。最后一个矩阵Y中的每一列表示同一主题一类文章，其中每个元素表示这类文章中每篇文章的相关性。中间的矩阵则表示类词和文章雷之间的相关性。因此，我们只要对关联矩阵A进行一次奇异值分解，w 我们就可以同时完成了近义词分类和文章的分类。（同时得到每类文章和每类词的相关性）。”</font></em></p>  <p>&nbsp;&nbsp;&nbsp;&nbsp; 上面这段话可能不太容易理解，不过这就是LSI的精髓内容，我下面举一个例子来说明一下，下面的例子来自LSA tutorial，具体的网址我将在最后的引用中给出：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226379109.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="285" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226386634.png" width="316" border="0"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 这就是一个矩阵，不过不太一样的是，这里的一行表示一个词在哪些title中出现了（一行就是之前说的一维feature），一列表示一个title中有哪些词，（这个矩阵其实是我们之前说的那种一行是一个sample的形式的一种转置，这个会使得我们的左右奇异向量的意义产生变化，但是不会影响我们计算的过程）。比如说T1这个title中就有guide、investing、market、stock四个词，各出现了一次，我们将这个矩阵进行SVD，得到下面的矩阵：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/201101192226389491.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="266" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226397148.png" width="624" border="0"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 左奇异向量表示词的一些特性，右奇异向量表示文档的一些特性，中间的奇异值矩阵表示左奇异向量的一行与右奇异向量的一列的重要程序，数字越大越重要。</p>  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 继续看这个矩阵还可以发现一些有意思的东西，首先，左奇异向量的第一列表示每一个词的出现频繁程度，虽然不是线性的，但是可以认为是一个大概的描述，比如book是0.15对应文档中出现的2次，investing是0.74对应了文档中出现了9次，rich是0.36对应文档中出现了3次；</p>  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 其次，右奇异向量中一的第一行表示每一篇文档中的出现词的个数的近似，比如说，T6是0.49，出现了5个词，T2是0.22，出现了2个词。</p>  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 然后我们反过头来看，我们可以将左奇异向量和右奇异向量都取后2维（之前是3维的矩阵），投影到一个平面上，可以得到：</p>  <p><a href="http://images.cnblogs.com/cnblogs_com/LeftNotEasy/201101/20110119222640769.png"><img title="image" style="border-top-width: 0px; display: block; border-left-width: 0px; float: none; border-bottom-width: 0px; margin-left: auto; margin-right: auto; border-right-width: 0px" height="390" alt="image" src="./强大的矩阵奇异值分解(SVD)及其应用_files/201101192226404739.png" width="497" border="0"></a>&nbsp;&nbsp;&nbsp;&nbsp; 在图上，每一个红色的点，都表示一个词，每一个蓝色的点，都表示一篇文档，这样我们可以对这些词和文档进行聚类，比如说stock 和 market可以放在一类，因为他们老是出现在一起，real和estate可以放在一类，dads，guide这种词就看起来有点孤立了，我们就不对他们进行合并了。按这样聚类出现的效果，可以提取文档集合中的近义词，这样当用户检索文档的时候，是用语义级别（近义词集合）去检索了，而不是之前的词的级别。这样一减少我们的检索、存储量，因为这样压缩的文档集合和PCA是异曲同工的，二可以提高我们的用户体验，用户输入一个词，我们可以在这个词的近义词的集合中去找，这是传统的索引无法做到的。</p>  <p>&nbsp;&nbsp;&nbsp;&nbsp; 不知道按这样描述，再看看吴军老师的文章，是不是对SVD更清楚了？:-D</p>  <p>&nbsp;</p>  <p><font color="#0080ff" size="4"><strong>参考资料：</strong></font></p>  <p>1）A Tutorial on Principal Component Analysis, Jonathon Shlens   <br>&nbsp;&nbsp;&nbsp;&nbsp; 这是我关于用SVD去做PCA的主要参考资料    <br>2）<a href="http://www.ams.org/samplings/feature-column/fcarc-svd">http://www.ams.org/samplings/feature-column/fcarc-svd</a>    <br>&nbsp;&nbsp;&nbsp;&nbsp; 关于svd的一篇概念好文，我开头的几个图就是从这儿截取的    <br>3）<a href="http://www.puffinwarellc.com/index.php/news-and-articles/articles/30-singular-value-decomposition-tutorial.html">http://www.puffinwarellc.com/index.php/news-and-articles/articles/30-singular-value-decomposition-tutorial.html</a>    <br>&nbsp;&nbsp;&nbsp;&nbsp; 另一篇关于svd的入门好文    <br>4）<a href="http://www.puffinwarellc.com/index.php/news-and-articles/articles/33-latent-semantic-analysis-tutorial.html">http://www.puffinwarellc.com/index.php/news-and-articles/articles/33-latent-semantic-analysis-tutorial.html</a>    <br>&nbsp;&nbsp;&nbsp;&nbsp; svd与LSI的好文，我后面LSI中例子就是来自此    <br>5）<a href="http://www.miislita.com/information-retrieval-tutorial/svd-lsi-tutorial-1-understanding.html">http://www.miislita.com/information-retrieval-tutorial/svd-lsi-tutorial-1-understanding.html</a>    <br>&nbsp;&nbsp;&nbsp;&nbsp; 另一篇svd与LSI的文章，也还是不错，深一点，也比较长    <br>6）Singular Value Decomposition and Principal Component Analysis, Rasmus Elsborg Madsen, Lars Kai Hansen and Ole Winther, 2004    <br>&nbsp;&nbsp;&nbsp;&nbsp; 跟1）里面的文章比较类似</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/LeftNotEasy/category/273622.html">机器学习</a>, <a href="http://www.cnblogs.com/LeftNotEasy/category/273623.html">数学</a></div>
+<div id="EntryTag">标签: <a href="http://www.cnblogs.com/LeftNotEasy/tag/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/">搜索引擎</a>, <a href="http://www.cnblogs.com/LeftNotEasy/tag/machine%20learning/">machine learning</a>, <a href="http://www.cnblogs.com/LeftNotEasy/tag/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a>, <a href="http://www.cnblogs.com/LeftNotEasy/tag/PCA/">PCA</a>, <a href="http://www.cnblogs.com/LeftNotEasy/tag/SVD/">SVD</a>, <a href="http://www.cnblogs.com/LeftNotEasy/tag/LSA/">LSA</a>, <a href="http://www.cnblogs.com/LeftNotEasy/tag/LSI/">LSI</a></div>
+<div id="blog_post_info"><div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(1939687,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+            <a id="green_channel_follow" onclick="follow();" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./强大的矩阵奇异值分解(SVD)及其应用_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./强大的矩阵奇异值分解(SVD)及其应用_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/LeftNotEasy/" target="_blank"><img src="./强大的矩阵奇异值分解(SVD)及其应用_files/u89123.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/LeftNotEasy/">LeftNotEasy</a><br>
+            <a href="http://home.cnblogs.com/u/LeftNotEasy/followees">关注 - 16</a><br>
+            <a href="http://home.cnblogs.com/u/LeftNotEasy/followers">粉丝 - 933</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow();return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(1939687,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">69</span>
+    </div>
+    <div class="buryit" onclick="votePost(1939687,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+            (请您对文章做出评价)
+    </div>
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/08/lda-and-pca-machine-learning.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/08/lda-and-pca-machine-learning.html" title="发布于2011-01-08 14:56">机器学习中的数学(4)-线性判别分析（LDA）, 主成分分析(PCA)</a><br><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/02/27/py_mining_first_release.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/02/27/py_mining_first_release.html" title="发布于2011-02-27 14:33">支持中文文本的数据挖掘平台开源项目PyMining发布</a><br></div>
+</div>
+
+</div>
+		<p class="postfoot">
+			posted on <span id="post-date">2011-01-19 22:27</span> <a href="http://www.cnblogs.com/LeftNotEasy/">LeftNotEasy</a> 阅读(<span id="post_view_count">145311</span>) 评论(<span id="post_comment_count">60</span>)  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=1939687" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#" onclick="AddToWz(1939687);return false;">收藏</a>
+		</p>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=62514,cb_entryId=1939687,cb_blogApp=currentBlogApp,cb_blogUserGuid='e78b6fc1-4fa4-de11-ba8f-001cf0cd104b',cb_entryCreatedDate='2011/1/19 22:27:00';loadViewCount(cb_entryId);</script>
+	
+	</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"><div class="pager"><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#!comments" onclick="commentManager.renderComments(1,50);return false;">&lt; Prev</a><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#!comments" onclick="commentManager.renderComments(1,50);return false;">1</a><span class="current">2</span></div></div>
+<a name="comments"></a>
+<div id="comments">
+<h3>评论</h3>
+
+
+	<h4><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3141257" class="layer">#51楼</a><a name="3141257" id="comment_anchor_3141257"></a><span> <span class="comment_date">2015-03-15 19:01</span></span><a id="a_comment_author_3141257" href="http://home.cnblogs.com/u/659659/" target="_blank">pluszero</a> <a href="http://msg.cnblogs.com/send/pluszero" title="发送站内短消息" class="sendMsg2This">&nbsp;</a></h4>
+	<p></p><div id="comment_body_3141257" class="blog_comment_body">404error。。。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3141257,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3141257,&#39;Bury&#39;,this)">反对(0)</a></div><span class="comment_actions"></span><p></p>
+
+	<h4><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3153499" class="layer">#52楼</a><a name="3153499" id="comment_anchor_3153499"></a><span> <span class="comment_date">2015-03-31 15:57</span></span><a id="a_comment_author_3153499" href="http://home.cnblogs.com/u/738150/" target="_blank">一晌贪欢</a> <a href="http://msg.cnblogs.com/send/%E4%B8%80%E6%99%8C%E8%B4%AA%E6%AC%A2" title="发送站内短消息" class="sendMsg2This">&nbsp;</a></h4>
+	<p></p><div id="comment_body_3153499" class="blog_comment_body">好文，一目了然</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3153499,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3153499,&#39;Bury&#39;,this)">反对(0)</a></div><span class="comment_actions"></span><p></p>
+
+	<h4><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3225222" class="layer">#53楼</a><a name="3225222" id="comment_anchor_3225222"></a><span> <span class="comment_date">2015-07-10 10:38</span></span><a id="a_comment_author_3225222" href="http://home.cnblogs.com/u/753794/" target="_blank">haors_OD</a> <a href="http://msg.cnblogs.com/send/haors_OD" title="发送站内短消息" class="sendMsg2This">&nbsp;</a></h4>
+	<p></p><div id="comment_body_3225222" class="blog_comment_body">好文，赞</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3225222,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3225222,&#39;Bury&#39;,this)">反对(0)</a></div><span class="comment_actions"></span><p></p>
+
+	<h4><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3227315" class="layer">#54楼</a><a name="3227315" id="comment_anchor_3227315"></a><span> <span class="comment_date">2015-07-14 09:59</span></span><a id="a_comment_author_3227315" href="http://www.cnblogs.com/CheeseZH/" target="_blank">ZH奶酪</a> <a href="http://msg.cnblogs.com/send/ZH%E5%A5%B6%E9%85%AA" title="发送站内短消息" class="sendMsg2This">&nbsp;</a></h4>
+	<p></p><div id="comment_body_3227315" class="blog_comment_body">赞~</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3227315,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3227315,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3227315_avatar" style="display:none;">http://pic.cnblogs.com/face/323808/20150421190230.png</span><span class="comment_actions"></span><p></p>
+
+	<h4><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3287974" class="layer">#55楼</a><a name="3287974" id="comment_anchor_3287974"></a><span> <span class="comment_date">2015-10-20 03:48</span></span><a id="a_comment_author_3287974" href="http://home.cnblogs.com/u/322226/" target="_blank">rujingyu</a> <a href="http://msg.cnblogs.com/send/rujingyu" title="发送站内短消息" class="sendMsg2This">&nbsp;</a></h4>
+	<p></p><div id="comment_body_3287974" class="blog_comment_body">难得的好文，希望楼主继续更新。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3287974,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3287974,&#39;Bury&#39;,this)">反对(0)</a></div><span class="comment_actions"></span><p></p>
+
+	<h4><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3329430" class="layer">#56楼</a><a name="3329430" id="comment_anchor_3329430"></a><span> <span class="comment_date">2015-12-18 10:28</span></span><a id="a_comment_author_3329430" href="http://www.cnblogs.com/lifesider/" target="_blank">走在人生边上</a> <a href="http://msg.cnblogs.com/send/%E8%B5%B0%E5%9C%A8%E4%BA%BA%E7%94%9F%E8%BE%B9%E4%B8%8A" title="发送站内短消息" class="sendMsg2This">&nbsp;</a></h4>
+	<p></p><div id="comment_body_3329430" class="blog_comment_body">写的很棒！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3329430,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3329430,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3329430_avatar" style="display:none;">http://pic.cnblogs.com/face/554120/20150708155724.png</span><span class="comment_actions"></span><p></p>
+
+	<h4><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3333478" class="layer">#57楼</a><a name="3333478" id="comment_anchor_3333478"></a><span> <span class="comment_date">2015-12-24 11:26</span></span><a id="a_comment_author_3333478" href="http://home.cnblogs.com/u/864469/" target="_blank">他们是青年</a> <a href="http://msg.cnblogs.com/send/%E4%BB%96%E4%BB%AC%E6%98%AF%E9%9D%92%E5%B9%B4" title="发送站内短消息" class="sendMsg2This">&nbsp;</a></h4>
+	<p></p><div id="comment_body_3333478" class="blog_comment_body">很好！！谢谢</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3333478,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3333478,&#39;Bury&#39;,this)">反对(0)</a></div><span class="comment_actions"></span><p></p>
+
+	<h4><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3421089" class="layer">#58楼</a><a name="3421089" id="comment_anchor_3421089"></a><span> <span class="comment_date">2016-05-02 11:55</span></span><a id="a_comment_author_3421089" href="http://www.cnblogs.com/goingmyway/" target="_blank">GoingMyWay</a> <a href="http://msg.cnblogs.com/send/GoingMyWay" title="发送站内短消息" class="sendMsg2This">&nbsp;</a></h4>
+	<p></p><div id="comment_body_3421089" class="blog_comment_body">看懂了，谢谢！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3421089,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3421089,&#39;Bury&#39;,this)">反对(0)</a></div><span class="comment_actions"></span><p></p>
+
+	<h4><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3427993" class="layer">#59楼</a><a name="3427993" id="comment_anchor_3427993"></a><span> <span class="comment_date">2016-05-10 20:15</span></span><a id="a_comment_author_3427993" href="http://home.cnblogs.com/u/953844/" target="_blank">echo_TJ</a> <a href="http://msg.cnblogs.com/send/echo_TJ" title="发送站内短消息" class="sendMsg2This">&nbsp;</a></h4>
+	<p></p><div id="comment_body_3427993" class="blog_comment_body">博主，PCA中利用特征值进行降维时对象只局限于方阵？？？</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3427993,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3427993,&#39;Bury&#39;,this)">反对(0)</a></div><span class="comment_actions"></span><p></p>
+
+	<h4><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3435751" class="layer">#60楼</a><a name="3435751" id="comment_anchor_3435751"></a><span id="comment-maxId" style="display:none;">3435751</span><span id="comment-maxDate" style="display:none;">2016/5/20 14:31:14</span><span> <span class="comment_date">2016-05-20 14:31</span></span><a id="a_comment_author_3435751" href="http://www.cnblogs.com/Stomach-ache/" target="_blank">Stomach_ache</a> <a href="http://msg.cnblogs.com/send/Stomach_ache" title="发送站内短消息" class="sendMsg2This">&nbsp;</a></h4>
+	<p></p><div id="comment_body_3435751" class="blog_comment_body"><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#3427993" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,3427993);">@</a>
+echo_TJ<br>当然不是。PCA需要求协方差矩阵，协方差矩阵就是方阵。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3435751,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3435751,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3435751_avatar" style="display:none;">http://pic.cnblogs.com/face/629466/20140501093735.png</span><span class="comment_actions"></span><p></p>
+
+</div><div id="comments_pager_bottom"><div class="pager"><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#!comments" onclick="commentManager.renderComments(1,50);return false;">&lt; Prev</a><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#!comments" onclick="commentManager.renderComments(1,50);return false;">1</a><span class="current">2</span></div></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br><a href="http://www.rongcloud.cn/" target="_blank">【推荐】融云即时通讯云－豆果美食、Faceu等亿级APP都在用</a><br><a href="http://group.cnblogs.com/topic/75069.html" target="_blank">【福利】你是我的好朋友，我要送你个天猫红包</a><br><a href="http://event.open.alipay.com/?adtag=bokeyuan2016" target="_blank">【活动】蚂蚁金服开放平台合作伙伴大会(北京8.10)</a><br></div>
+<div id="opt_under_post"></div>
+<div id="ad_c1" class="c_ad_block"><a href="http://www.gcpowertools.com.cn/products/componentone.htm?utm_source=cnblogs&amp;utm_medium=blogpage&amp;utm_term=bottom&amp;utm_content=C1&amp;utm_campaign=community" target="_blank"><img width="300" height="250" src="./强大的矩阵奇异值分解(SVD)及其应用_files/24442-20160630110653437-3203292.jpg" alt=""></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/550507/" target="_blank">百度的财报什么时候才能好看，李彦宏和分析师都说还得两三个季度</a><br> ·  <a href="http://news.cnblogs.com/n/550506/" target="_blank">马云对话张瑞敏：要在阳光灿烂的日子修屋顶</a><br> ·  <a href="http://news.cnblogs.com/n/550505/" target="_blank">霍金：一身铜钱味不应该是我们的梦想</a><br> ·  <a href="http://news.cnblogs.com/n/550504/" target="_blank">一手缔造网易云音乐的王磊离职 加盟百度音乐任总经理</a><br> ·  <a href="http://news.cnblogs.com/n/550503/" target="_blank">圆通速递上市：阿里系浮盈达数十亿 赵薇获利数千万</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="ad_c2" class="c_ad_block"><a href="https://www.jiguang.cn/?from=cnblogs01" target="_blank"><img width="468" height="60" src="./强大的矩阵奇异值分解(SVD)及其应用_files/24442-20160613130538213-1713265809.jpg" alt=""></a></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/540529/" target="_blank">可是姑娘，你为什么要编程呢？</a><br> ·  <a href="http://kb.cnblogs.com/page/549631/" target="_blank">知其所以然（以算法学习为例）</a><br> ·  <a href="http://kb.cnblogs.com/page/548394/" target="_blank">如何给变量取个简短且无歧义的名字</a><br> ·  <a href="http://kb.cnblogs.com/page/549080/" target="_blank">编程的智慧</a><br> ·  <a href="http://kb.cnblogs.com/page/549049/" target="_blank">写给初学前端工程师的一封信</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();
+    deliverAdC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);    
+});
+</script>
+</div>
+
+    
+</div>
+<div id="rightmenu">
+    
+        
+        
+<h3>导航</h3>
+<ul>
+			<li><a id="MyLinks1_HomeLink" href="http://www.cnblogs.com/">博客园</a></li>
+			<li><a id="MyLinks1_MyHomeLink" href="http://www.cnblogs.com/LeftNotEasy/">首页</a></li>
+			<li></li>
+			<li><a id="MyLinks1_ContactLink" accesskey="9" rel="nofollow" href="http://msg.cnblogs.com/send/LeftNotEasy">联系</a></li>
+			<li><a id="MyLinks1_Syndication" href="http://www.cnblogs.com/LeftNotEasy/rss">订阅</a><a id="MyLinks1_XMLLink" href="http://www.cnblogs.com/LeftNotEasy/rss"><img src="./强大的矩阵奇异值分解(SVD)及其应用_files/xml.gif" alt="订阅"></a>
+			</li><li><a id="MyLinks1_Admin" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+        <div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+        
+        <div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block"></div><div id="sidebar_shortcut" class="sidebar-block">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="http://www.cnblogs.com/LeftNotEasy/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/" title="我的博客的标签列表">我的标签</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+
+</div></div><div id="sidebar_toptags" class="sidebar-block">
+<h3 class="catListTitle">我的标签</h3>
+<div id="MyTag">
+<ul>
+<li><a href="http://www.cnblogs.com/LeftNotEasy/tag/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a>(7)</li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/">搜索引擎</a>(7)</li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/Lucene/">Lucene</a>(6)</li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/machine%20learning/">machine learning</a>(4)</li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/mathmatics/">mathmatics</a>(3)</li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/Hadoop/">Hadoop</a>(3)</li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/pymining/">pymining</a>(3)</li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">人工智能</a>(3)</li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98/">数据挖掘</a>(3)</li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/PCA/">PCA</a>(2)</li><li><a href="http://www.cnblogs.com/LeftNotEasy/tag/">更多</a></li>
+</ul>
+</div></div><div id="sidebar_categories">
+		<h3>随笔分类</h3>
+		
+				<ul>
+			
+				<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/LeftNotEasy/category/355677.html">Hadoop(2)</a> </li>
+			
+				<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/LeftNotEasy/category/220705.html">Lucene C++重写心得(2)</a> </li>
+			
+				<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/LeftNotEasy/category/220704.html">Lucene JAVA心得(9)</a> </li>
+			
+				<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/LeftNotEasy/category/220702.html">安排，计划，总结(2)</a> </li>
+			
+				<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/LeftNotEasy/category/220709.html">分布式存储(2)</a> </li>
+			
+				<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/LeftNotEasy/category/273622.html">机器学习(7)</a> </li>
+			
+				<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/LeftNotEasy/category/261428.html">结构设计(1)</a> </li>
+			
+				<li><a id="CatList_LinkList_0_Link_7" href="http://www.cnblogs.com/LeftNotEasy/category/273623.html">数学(7)</a> </li>
+			
+				</ul>
+			
+	
+		<h3>随笔档案</h3>
+		
+				<ul>
+			
+				<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/LeftNotEasy/archive/2016/07.html">2016年7月 (2)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/LeftNotEasy/archive/2012/02.html">2012年2月 (1)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/LeftNotEasy/archive/2011/08.html">2011年8月 (1)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/LeftNotEasy/archive/2011/05.html">2011年5月 (5)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/LeftNotEasy/archive/2011/03.html">2011年3月 (1)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/LeftNotEasy/archive/2011/02.html">2011年2月 (1)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01.html">2011年1月 (3)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/LeftNotEasy/archive/2010/12.html">2010年12月 (2)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/LeftNotEasy/archive/2010/11.html">2010年11月 (1)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/LeftNotEasy/archive/2010/10.html">2010年10月 (1)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/LeftNotEasy/archive/2010/09.html">2010年9月 (2)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/LeftNotEasy/archive/2010/08.html">2010年8月 (1)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/LeftNotEasy/archive/2010/01.html">2010年1月 (12)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/LeftNotEasy/archive/2009/12.html">2009年12月 (2)</a> </li>
+			
+				<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/LeftNotEasy/archive/2009/11.html">2009年11月 (4)</a> </li>
+			
+				</ul>
+			
+	</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<h3 class="catListTitle">最新评论</h3>
+<div class="RecentComment" id="RecentComments">
+	<div id="RecentCommentsBlock"><ul>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/03/07/random-forest-and-gbdt.html#3474379">1. Re:机器学习中的算法(1)-决策树模型组合之随机森林与GBDT</a></li>
+        <li class="recent_comment_body">J个叶子节点K个类,J和K的个数是一样的吗? 那么J节点的含义是什么?</li>
+        <li class="recent_comment_author">--TJUsxh</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/LeftNotEasy/p/my-thoughts-from-hadoop-summit-2016.html#3467728">2. Re:从Hadoop Summit 2016看大数据行业与Hadoop的发展</a></li>
+        <li class="recent_comment_body">楼主，我follow您博客很久了，从您的博客中学到了很多，很感谢。比较好奇您怎么换了方向了啊？</li>
+        <li class="recent_comment_author">--jhb.python</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/LeftNotEasy/p/my-thoughts-from-hadoop-summit-2016.html#3464766">3. Re:从Hadoop Summit 2016看大数据行业与Hadoop的发展</a></li>
+        <li class="recent_comment_body">@Cheney ShueHadoop 已经不是当年的Hadoop了，现在各种应用都能跑了...</li>
+        <li class="recent_comment_author">--LeftNotEasy</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/LeftNotEasy/p/my-thoughts-from-hadoop-summit-2016.html#3464741">4. Re:从Hadoop Summit 2016看大数据行业与Hadoop的发展</a></li>
+        <li class="recent_comment_body">脑力不够，我都跳不出做asp.net小网站的圈子了。</li>
+        <li class="recent_comment_author">--荆棘人</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/LeftNotEasy/p/my-thoughts-from-hadoop-summit-2016.html#3464738">5. Re:从Hadoop Summit 2016看大数据行业与Hadoop的发展</a></li>
+        <li class="recent_comment_body">曾经觉得hadoop这种只适合批处理数据的工具没啥用处，但真正碰上对的应用场景了，才发现是很棒的东西。</li>
+        <li class="recent_comment_author">--Cheney Shue</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<h3 class="catListTitle">阅读排行榜</h3>
+<div class="RecentComment" id="TopViewPosts"> 
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html">1. 机器学习中的数学(5)-强大的矩阵奇异值分解(SVD)及其应用(145311)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/05/02/basic-of-svm.html">2. 机器学习中的算法(2)-支持向量机(SVM)基础(106109)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/03/07/random-forest-and-gbdt.html">3. 机器学习中的算法(1)-决策树模型组合之随机森林与GBDT(93398)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/08/lda-and-pca-machine-learning.html">4. 机器学习中的数学(4)-线性判别分析（LDA）, 主成分分析(PCA)(90550)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2010/12/05/mathmatic_in_machine_learning_1_regression_and_gradient_descent.html">5. 机器学习中的数学(1)-回归(regression)、梯度下降(gradient descent)(82085)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<h3 class="catListTitle">评论排行榜</h3>
+<div class="RecentComment" id="TopCommentsPosts">
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html">1. 机器学习中的数学(5)-强大的矩阵奇异值分解(SVD)及其应用(60)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/05/02/basic-of-svm.html">2. 机器学习中的算法(2)-支持向量机(SVM)基础(37)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2010/12/05/mathmatic_in_machine_learning_1_regression_and_gradient_descent.html">3. 机器学习中的数学(1)-回归(regression)、梯度下降(gradient descent)(34)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/08/lda-and-pca-machine-learning.html">4. 机器学习中的数学(4)-线性判别分析（LDA）, 主成分分析(PCA)(30)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2010/12/19/mathmatic_in_machine_learning_2_regression_and_bias_variance_trade_off.html">5. 机器学习中的数学(2)-线性回归，偏差、方差权衡(23)</a></li></ul></div>
+</div></div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div class="RecentComment">
+	<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html">1. 机器学习中的数学(5)-强大的矩阵奇异值分解(SVD)及其应用(69)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/05/02/basic-of-svm.html">2. 机器学习中的算法(2)-支持向量机(SVM)基础(36)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2010/12/05/mathmatic_in_machine_learning_1_regression_and_gradient_descent.html">3. 机器学习中的数学(1)-回归(regression)、梯度下降(gradient descent)(28)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/03/07/random-forest-and-gbdt.html">4. 机器学习中的算法(1)-决策树模型组合之随机森林与GBDT(26)</a></li><li><a href="http://www.cnblogs.com/LeftNotEasy/archive/2011/08/27/why-map-reduce-must-be-future-of-distributed-computing.html">5. 为什么Hadoop将一定会是分布式计算的未来？(23)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+    
+</div>
+</div>
+<div class="clear"></div>
+
+<div id="footer">
+	Powered by: 
+	<a id="Footer1_Hyperlink3" name="Hyperlink1" href="http://www.cnblogs.com/" style="font-family:Verdana;font-size:12px;">博客园</a>	Copyright © LeftNotEasy
+</div>
+
+
+
+</body></html>
