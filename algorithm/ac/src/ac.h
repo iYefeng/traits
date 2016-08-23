@@ -56,7 +56,7 @@ std::string w2c(const wchar_t * pw)
   }
   size_t size= wcslen(pw)*sizeof(wchar_t);
   char *pc = NULL;
-  if(!(pc = (char*)malloc(size)))
+  if(!(pc = new char[size]))
   {
     return val;
   }
