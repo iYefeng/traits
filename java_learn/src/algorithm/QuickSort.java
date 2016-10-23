@@ -1,5 +1,7 @@
 package algorithm;
 
+import java.util.HashMap;
+
 /**
  * Created by yefeng on 16/10/22.
  */
