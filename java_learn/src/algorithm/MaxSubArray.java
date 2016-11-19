@@ -47,5 +47,6 @@ public class MaxSubArray {
     public static void main(String[] args) {
         int[] arr = {1, -2, 4, 8, -4, 7, -1, -5};
         System.out.println(maxSubArray(arr));
+        System.out.println(maxSubArray2(arr));
     }
 }

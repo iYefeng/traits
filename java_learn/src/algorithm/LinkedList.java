@@ -15,6 +15,9 @@ class Node{
 }
 
 public class LinkedList {
+
+
+
     Node head = new Node(0);
     Node tail = head;
 
