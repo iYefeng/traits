@@ -16,4 +16,6 @@ algorithm/decisiontree/data/
 nodejs/
 jupyter/*_checkpoints*
 jupyter/*/*_checkpoints*
-
+mvc_learn/out
+mvc_learn/.idea
+mvc_learn/target
