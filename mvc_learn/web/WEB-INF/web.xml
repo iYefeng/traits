@@ -3,4 +3,28 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
+
+    <servlet>
+        <servlet-name>dispatcher</servlet-name>
+        <servlet-class>org.lighten.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>container</param-name>
+            <param-value>Guice</param-value>
+        </init-param>
+        <init-param>
+            <param-name>modules</param-name>
+            <param-value>org.lightendemo.example1.Modules</param-value>
+        </init-param>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>Velocity</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
 </web-app>
