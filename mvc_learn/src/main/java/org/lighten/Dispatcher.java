@@ -49,6 +49,7 @@ public class Dispatcher {
         this.containerFactory_ = Utils.createContainerFactory(containerName);
         this.containerFactory_.init(config);
         List<Object> beans = this.containerFactory_.findAllBeans();
+
         initComponents(beans);
 
     }
@@ -83,6 +84,7 @@ public class Dispatcher {
             if (isActionMethod(m)) {
                 Mapping mapping = m.getAnnotation(Mapping.class);
                 String url = mapping.value();
+                System.out.println("method url = " + url);
                 UrlMatcher matcher = new UrlMatcher(url);
                 if (matcher.getArgumentCount() != m.getParameterTypes().length) {
                     warnInvalidActionMethod(m, "Arguments in URL '" + url + "' does not match the arguments of method.");
@@ -124,7 +126,7 @@ public class Dispatcher {
         return false;
     }
 
-    // log warning message of invalid action method:
+    // log warning message of invalid action method
     void warnInvalidActionMethod(Method m, String string) {
         log_.warning("Invalid Action method '" + m.toGenericString() + "': " + string);
     }
@@ -134,15 +136,62 @@ public class Dispatcher {
             throws ServletException, IOException {
         log_.info(">> [Dispatcher] Handle request");
 
-        // 设置响应内容类型
-        resp.setContentType("text/html");
-        // 实际的逻辑是在这里
-        PrintWriter out = resp.getWriter();
-        out.println("hello world");
+//        // 设置响应内容类型
+//        resp.setContentType("text/html");
+//        // 实际的逻辑是在这里
+//        PrintWriter out = resp.getWriter();
+//        out.println("hello world");
 
+        String url = req.getRequestURI();
+        String path = req.getContextPath();
+        if (path.length() > 0) {
+            url = url.substring(path.length());
+        }
+        System.out.println(url);
+        Execution execution = null;
+        System.out.println("matcher num=" + urlMatchers_.length);
+        for (UrlMatcher matcher : this.urlMatchers_) {
+            System.out.println(matcher.url);
+            String[] args = matcher.getMatchedParameters(url);
+            System.out.println(args);
+            if (args!=null) {
+                Action action = urlMap_.get(matcher);
+                Object[] arguments = new Object[args.length];
+                for (int i=0; i<args.length; i++) {
+                    Class<?> type = action.arguments[i];
+                    if (type.equals(String.class))
+                        arguments[i] = args[i];
+                    else
+                        arguments[i] = converterFactory.convert(type, args[i]);
+                }
+                execution = new Execution(req, resp, action, arguments);
+                break;
+            }
+        }
+        if (execution!=null) {
+            handleExecution(execution, req, resp);
+        }
         log_.info("<< [Dispatcher] Handle request");
-        return true;
+        return execution!=null;
     }
+
+
+    public void handleExecution(Execution execution, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            Object result = execution.execute();
+            if (result instanceof String) {
+                String text = (String) result;
+                System.out.println(text);
+                response.setContentType("text/html");
+                // 实际的逻辑是在这里
+                PrintWriter out = response.getWriter();
+                out.println(text);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void destroy() {
         log_.info("<< Destroy Dispatcher");

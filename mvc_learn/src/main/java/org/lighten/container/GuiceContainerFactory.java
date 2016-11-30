@@ -39,6 +39,7 @@ public class GuiceContainerFactory implements ContainerFactory {
         s = s.trim();
         if (s.length() > 0) {
             try {
+                System.out.println(s);
                 Object m = Class.forName(s).newInstance();
                 if (m instanceof Module) {
                     return (Module) m;
@@ -60,7 +61,7 @@ public class GuiceContainerFactory implements ContainerFactory {
         List<Object> list = new ArrayList<Object>(keys.size());
         Object bean = null;
         for (Key<?> key : keys) {
-            bean = injector_.getBinding(key);
+            bean = injector_.getInstance(key);
             list.add(bean);
         }
         return list;
