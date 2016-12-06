@@ -7,7 +7,9 @@
  * Create time   : 2016-12-06 22:13
  * Last modified : 2016-12-06 22:13
  * Filename      : SumConbination.cc
- * Description   : 
+ * Description   : 输入两个整数 n 和 m,从数列1,2,3.......n 中
+ *                 随意取几个数, 使其和等于 m ,要求将其中所有
+ *                 的可能组合列出来.
  * *********************************************************/
 
 #include <iostream>
