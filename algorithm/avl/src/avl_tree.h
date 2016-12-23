@@ -72,8 +72,8 @@ private:
   NODE _insert(KEY_TYPE key, VALUE_TYPE value, NODE root);
   void _print(NODE root);
 
-  int maxHeight_;
   NODE root_;
+  int maxHeight_;
 };
 
 
