@@ -13,22 +13,24 @@ This folder contains some useful algorithms for programming.
 9. rad-black tree
 10. B+ tree
 11. B tree
-12. AVL tree
-13. qsort
-14. AC automation (Aho-Corasick automation)[5]
-15. kmp
-16. priority queue
-17. crf (Conditional random fields algorithm)
-18. cf (Collaborative filtering)
-19. gbdt (Gradient Boosting Decision Tree)
-20. rf (random forest)
-21. fm (Flajolet Martin)[6]
-22. knn (k-NearestNeighbor)
-23. k-means
-24. lda (Linear discriminant analysis)
-25. naive bayes
-26. decision tree
-27. pca
+12. B* tree
+13. AVL tree
+14. qsort
+15. AC automation (Aho-Corasick automation)[5]
+16. kmp
+17. priority queue
+18. crf (Conditional random fields algorithm)
+19. cf (Collaborative filtering)
+20. gbdt (Gradient Boosting Decision Tree)
+21. rf (random forest)
+22. fm (Flajolet Martin)[6]
+23. knn (k-NearestNeighbor)
+24. k-means
+25. lda (Linear discriminant analysis)
+26. naive bayes
+27. decision tree
+28. pca
+29. fsm (Finite State Machine)
   <br />...
 
 ### Reference
