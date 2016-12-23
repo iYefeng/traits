@@ -29,7 +29,7 @@ typedef shared_ptr<TreeNode> NODE;
 struct TreeNode
 {
   TreeNode(KEY_TYPE key, VALUE_TYPE value);
-  ~TreeNode();
+  ~TreeNode(){}
   KEY_TYPE key_;
   VALUE_TYPE value_;
   NODE left_;
@@ -43,8 +43,8 @@ public:
   AvlTree();
   ~AvlTree();
   void insert(KEY_TYPE key, VALUE_TYPE value);
-  NODE find(KEY_TYPE key);
-  void erase(KEY_TYPE key);
+  //NODE find(KEY_TYPE key);
+  //void erase(KEY_TYPE key);
   int printHeight();
   bool isEmpty()
   {
@@ -60,17 +60,19 @@ private:
 
   int nodeHeightDiff(NODE left, NODE right) 
   {
-    int hd = left->height_ - right->height_;
+    int hd = nodeHeight(left) - nodeHeight(right);
     return ABS(hd);
   }
 
-  NODE singleLeftRotate(NODE father, NODE right_child);
-  NODE singleRightRotate(NODE father, NODE left_child); 
-  NODE doubleLeftRotate(NODE grandfather, NODE right_father, NODE left_child);
-  NODE doubleRightRotate(NODE grandfather, NODE left_father, NODE right_child);
+  NODE singleLeftRotate(NODE k2);
+  NODE singleRightRotate(NODE k1); 
+  NODE doubleLeftRotate(NODE k3);
+  NODE doubleRightRotate(NODE k1);
 
   NODE _insert(KEY_TYPE key, VALUE_TYPE value, NODE root);
+  void _print(NODE root);
 
+  int maxHeight_;
   NODE root_;
 };
 
