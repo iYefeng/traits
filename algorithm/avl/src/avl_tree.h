@@ -43,8 +43,8 @@ public:
   AvlTree();
   ~AvlTree();
   void insert(KEY_TYPE key, VALUE_TYPE value);
-  //NODE find(KEY_TYPE key);
-  //void erase(KEY_TYPE key);
+  NODE find(KEY_TYPE key);
+  void erase(KEY_TYPE key);
   int printHeight();
   bool isEmpty()
   {
@@ -71,6 +71,13 @@ private:
 
   NODE _insert(KEY_TYPE key, VALUE_TYPE value, NODE root);
   void _print(NODE root);
+
+  NODE deleteFixup(NODE node);
+  NODE deleteHaveRightChild(NODE node);
+  NODE deleteHaveLeftChild(NODE node);
+  NODE deleteHaveTwoChild(NODE node, NODE trueNode);
+  NODE _delete(NODE root);
+  NODE _deleteKey(KEY_TYPE key, NODE root);
 
   NODE root_;
   int maxHeight_;

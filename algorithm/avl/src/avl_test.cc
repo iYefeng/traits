@@ -16,7 +16,7 @@
 
 using namespace std;
 
-#define COUNT 200000
+#define COUNT 200
 
 int main(int argc, char *argv[])
 {
@@ -27,6 +27,12 @@ int main(int argc, char *argv[])
   for(i=0; i < COUNT; i++){
     cout << endl <<i << endl;
     avl.insert(rand()%(COUNT*2), 1);
+  }
+  
+  cout << avl.printHeight() << endl;
+
+  for(i=0;i<(COUNT);i++){
+    avl.erase(rand()%(COUNT*2));
   }
 
   cout << avl.printHeight() << endl;

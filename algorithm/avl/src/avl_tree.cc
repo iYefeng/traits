@@ -140,3 +140,101 @@ void AvlTree::_print(NODE root)
     _print(root->right_);
   }
 }
+
+void AvlTree::erase(KEY_TYPE key)
+{
+  if (isEmpty()) {
+    printf("the tree is empty\n");
+    return;
+  }
+  root_ = _deleteKey(key, root_);
+}
+
+NODE AvlTree::_deleteKey(KEY_TYPE key, NODE root)
+{
+  if (root != NULL && root->key_ == key) {
+    root = _delete(root);
+    return root;
+  } else if (root != NULL) {
+    if(key < root->key_){         //向左子树中寻找
+      root->left_ = _deleteKey(key, root->left_);
+    }else{                        //向右子树中寻找
+      root->right_ = _deleteKey(key, root->right_);
+    }
+    // 检查高度差，并修复
+    if (nodeHeightDiff(root->left_, root->right_) >= 2) {
+      root = deleteFixup(root);
+    } 
+    root->height_ = MAX(nodeHeight(root->left_), nodeHeight(root->right_)) + 1;      // 更新高度
+    return root;
+  }
+  //递归寻找到树的最低层，没有找到要删除的
+  printf(":can't find key:%d\n", key); 
+  return NULL;
+}
+
+NODE AvlTree::_delete(NODE root)
+{
+  if(root->left_ == NULL){  //只有右儿子(或都为空)
+    root = deleteHaveRightChild(root);
+  }else if(root->left_ != NULL && root->right_ == NULL){    //只有左儿子
+    root = deleteHaveLeftChild(root);
+  }else if(root->left_ != NULL && root->right_ != NULL){        //两个儿子，那么删除的实际上是右子树中的最小元素，别忘了要交换关键字
+    
+    //所以传入了当前节点root指针，好在删除的时候和其交换关键字
+    root->right_ = deleteHaveTwoChild(root->right_, root);
+  }
+  
+  if(root != NULL) {
+    root->height_ = MAX(nodeHeight(root->left_), nodeHeight(root->right_)) + 1;
+    if (nodeHeightDiff(root->left_, root->right_) >= 2) {
+      root = deleteFixup(root);
+      root->height_ = MAX(nodeHeight(root->left_), nodeHeight(root->right_)) + 1;
+    }
+  }
+  return root;
+}
+
+inline NODE AvlTree::deleteHaveRightChild(NODE node)
+{
+  return node->right_;
+}
+
+inline NODE AvlTree::deleteHaveLeftChild(NODE node)
+{
+  return node->left_;
+}
+
+NODE AvlTree::deleteHaveTwoChild(NODE node, NODE trueNode)
+{
+  if (node->left_ != NULL) {
+    node->left_ = deleteHaveTwoChild(node->left_, trueNode);
+    if (nodeHeightDiff(node->left_, node->right_) >= 2) {
+      // 修正可能出现的高度规则破坏
+      node= deleteFixup(node);
+    }
+    node->height_ = MAX(nodeHeight(node->left_), nodeHeight(node->right_)) + 1;
+    return node;
+  }
+  trueNode->key_ = node->key_;
+  trueNode->value_ = node->value_;
+  return node->right_;   //别忘了返回节点
+}
+
+NODE AvlTree::deleteFixup(NODE node)
+{
+  if(nodeHeight(node->left_) > nodeHeight(node->right_)){
+    if(nodeHeight(node->left_->left_) >= nodeHeight(node->left_->right_)) {
+      node = singleRightRotate(node); 
+    } else {
+      node = doubleRightRotate(node);
+    }
+  } else {
+    if (nodeHeight(node->right_->right_) >= nodeHeight(node->right_->left_)) {
+      node = singleLeftRotate(node);
+    } else {
+      node = doubleLeftRotate(node);
+    }
+  }
+  return node;
+}
