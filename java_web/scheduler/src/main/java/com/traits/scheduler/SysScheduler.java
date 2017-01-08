@@ -44,7 +44,7 @@ public class SysScheduler {
     public void run() {
         logger.info("SysScheduler running");
         try {
-            String schedulerType = confProperties.getProperty("scheduler.type", "projectTrigger, taskTrigger, worker");
+            String schedulerType = confProperties.getProperty("scheduler.type", "projectTrigger, taskTrigger, taskWorker");
 
             if (schedulerType.contains("projectTrigger")) {
                 logger.info("run as projectTrigger");

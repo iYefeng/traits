@@ -13,4 +13,8 @@ public class FileMonitorSourceConstants {
 
     public static final String CONFIG_PORT = "port";
 
+    public static final String CONFIG_USER = "user";
+
+    public static final String CONFIG_PWD = "password";
+
 }
