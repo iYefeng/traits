@@ -11,6 +11,7 @@ import (
 )
 
 import "algorithms/bubblesort"
+import "algorithms/qsort"
 
 var infile *string = flag.String("i", "infile", "File contains values for sorting")
 var outfile *string = flag.String("o", "outfile", "File to receive sorted values")
@@ -81,16 +82,22 @@ func main() {
 		//fmt.Println("Read values: ", values)
 		t1 := time.Now()
 		switch *algorithm {
-			case "bubblesort":{
+		case "bubblesort":
+			{
 				bubblesort.BubbleSort(values)
 			}
-			default:{
+		case "qsort":
+			{
+				qsort.QuickSort(values)
+			}
+		default:
+			{
 				fmt.Println("Sorting algorithm", *algorithm, "is not found")
 			}
 		}
 
 		t2 := time.Now()
-		fmt.Println("The sorting process costs", t2.Sub(t1), "to complete")
+		fmt.Println("The sorting process costs", t2.Sub(t1), "ns to complete")
 
 		err = writeValues(values, *outfile)
 	} else {
