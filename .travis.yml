@@ -1,0 +1,13 @@
+git:
+  depth: 3
+language: cpp
+sudo: required
+dist: trusty
+compiler:
+  - gcc
+os:
+  - linux
+install:
+  - echo "hello install"
+script:
+  - echo "hello build project"
