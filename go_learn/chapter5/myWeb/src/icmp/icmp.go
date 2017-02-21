@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	icmpv4EchoRequest = 8
 	icmpv4EchoReply   = 0
+	icmpv4EchoRequest = 8
 	icmpv6EchoRequest = 128
 	icmpv6EchoReply   = 129
 )
