@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"net/rpc"
 	"os"
-	"rpcServerHandler"
+	"rpcService/handler"
 )
 
 func main() {
-	arith := new(rpcServerHandler.Arith)
+	arith := new(handler.Arith)
 	rpc.Register(arith)
 	rpc.HandleHTTP()
 	l, e := net.Listen("tcp", ":1234")

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/rpc"
-	"rpcServerHandler"
+	"rpcService/handler"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 	if err != nil {
 		log.Fatal("dialing:", err)
 	}
-	args := &rpcServerHandler.Args{7, 8}
+	args := &handler.Args{7, 8}
 
 	var reply int
 	err = client.Call("Arith.Multiply", args, &reply)

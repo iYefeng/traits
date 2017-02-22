@@ -1,4 +1,4 @@
-package rpcServerHandler
+package handler
 
 import (
     "errors"
