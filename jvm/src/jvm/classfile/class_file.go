@@ -69,6 +69,45 @@ func (self *ClassFile) readAndCheckVersion(reader *ClassReader) {
 	panic("java.lang.UnsupportedClassVersionError")
 }
 
-func (self *ClassFile) readConstantPool(reader *ClassReader) {
+func (self *ClassFile) MinorVersion() uint16 {
+	return self.minorVersion
+}
 
+func (self *ClassFile) MajorVersion() uint16 {
+	return self.majorVersion
+}
+
+func (self *ClassFile) ConstantPool() ConstantPool {
+	return self.constantPool
+}
+
+func (self *ClassFile) AssessFlags() uint16 {
+	return self.accessFlags
+}
+
+func (self *ClassFile) Feilds() []*MemberInfo {
+	return self.fields
+}
+
+func (self *ClassFile) Methods() []*MemberInfo {
+	return self.methods
+}
+
+func (self *ClassFile) ClassName() string {
+	return self.constantPool.getClassName(self.thisClass)
+}
+
+func (self *ClassFile) SuperClassName() string {
+	if self.superClass > 0 {
+		return self.constantPool.getClassName(self.superClass)
+	}
+	return "" // java.lang.Object has no super class
+}
+
+func (self *ClassFile) InterfaceNames() []string {
+	interfaceNames := make([]string, len(self.interfaces))
+	for i, cpIndex := range self.interfaces {
+		interfaceNames[i] = self.constantPool.getClassName(cpIndex)
+	}
+	return interfaceNames
 }
