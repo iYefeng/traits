@@ -4,7 +4,7 @@ import ()
 
 type MarkerAttribute struct{}
 
-func (self *MarkerAttribute) readInfo(reader *MarkerAttribute) {
+func (self *MarkerAttribute) readInfo(reader *ClassReader) {
 	// read nothing
 }
 

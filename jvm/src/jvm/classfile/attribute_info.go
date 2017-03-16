@@ -34,6 +34,10 @@ func newAttributeInfo(attrName string, attrLen uint32, cp ConstantPool) Attribut
 		return &DeprecatedAttribute{}
 	case "Synthetic":
 		return &SyntheticAttribute{}
+	case "Exceptions":
+		return &ExceptionAttribute{}
+	case "SourceFile":
+		return &SourceFileAttribute{cp: cp}
 	default:
 		return &UnparsedAttribute{attrName, attrLen, nil}
 	}
