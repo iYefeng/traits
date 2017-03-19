@@ -38,6 +38,16 @@ func newAttributeInfo(attrName string, attrLen uint32, cp ConstantPool) Attribut
 		return &ExceptionAttribute{}
 	case "SourceFile":
 		return &SourceFileAttribute{cp: cp}
+	case "EnclosingMethod":
+		return &EnclosingMethodAttribute{cp: cp}
+	case "InnerClasses":
+		return &InnerClassAttribute{}
+	case "LineNumberTable":
+		return &LineNumberTableAttribute{}
+	case "LocalVariableTable":
+		return &LocalVariableTableAttribute{}
+	case "Signature":
+		return &SignatureAttribute{cp: cp}
 	default:
 		return &UnparsedAttribute{attrName, attrLen, nil}
 	}

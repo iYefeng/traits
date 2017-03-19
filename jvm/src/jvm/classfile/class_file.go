@@ -81,11 +81,11 @@ func (self *ClassFile) ConstantPool() ConstantPool {
 	return self.constantPool
 }
 
-func (self *ClassFile) AssessFlags() uint16 {
+func (self *ClassFile) AccessFlags() uint16 {
 	return self.accessFlags
 }
 
-func (self *ClassFile) Feilds() []*MemberInfo {
+func (self *ClassFile) Fields() []*MemberInfo {
 	return self.fields
 }
 
