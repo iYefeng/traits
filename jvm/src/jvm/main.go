@@ -5,7 +5,7 @@ import (
 	"jvm/classfile"
 	"jvm/classpath"
 	"jvm/rtda"
-	//"strings"
+	"strings"
 )
 
 func main() {
@@ -20,17 +20,26 @@ func main() {
 }
 
 func startJVM(cmd *Cmd) {
-	//	cp := classpath.Parse(cmd.XjreOption, cmd.cpOption)
-	//	fmt.Printf("classpath:%v class:%s args:%v\n",
-	//		cp, cmd.class, cmd.args)
-	//	className := strings.Replace(cmd.class, ".", "/", -1)
-	//	cf := loadClass(className, cp)
+	cp := classpath.Parse(cmd.XjreOption, cmd.cpOption)
+	fmt.Printf("classpath:%v class:%s args:%v\n",
+		cp, cmd.class, cmd.args)
+	className := strings.Replace(cmd.class, ".", "/", -1)
+	cf := loadClass(className, cp)
+
+	mainMethod := getMainMethod(cf)
+	if mainMethod != nil {
+		interpret(mainMethod)
+	} else {
+		fmt.Printf("Main method not found in class %s\n", cmd.class)
+	}
+
 	//	fmt.Printf(cmd.class)
 	//	printClassInfo(cf)
 
-	frame := rtda.NewFrame(100, 100)
-	testLocalVars(frame.LocalVars())
-	testOperandStack(frame.OperandStack())
+	// FIXME
+	//	frame := rtda.NewFrame(nil, 100, 100)
+	//	testLocalVars(frame.LocalVars())
+	//	testOperandStack(frame.OperandStack())
 }
 
 func loadClass(className string, cp *classpath.Classpath) *classfile.ClassFile {
@@ -43,6 +52,15 @@ func loadClass(className string, cp *classpath.Classpath) *classfile.ClassFile {
 		panic(err)
 	}
 	return cf
+}
+
+func getMainMethod(cf *classfile.ClassFile) *classfile.MemberInfo {
+	for _, m := range cf.Methods() {
+		if m.Name() == "main" && m.Descriptor() == "([Ljava/lang/String;)V" {
+			return m
+		}
+	}
+	return nil
 }
 
 func printClassInfo(cf *classfile.ClassFile) {
