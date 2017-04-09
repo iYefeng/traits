@@ -2,6 +2,7 @@ package heap
 
 import (
 	"jvm/classfile"
+	"strings"
 )
 
 type Class struct {
@@ -55,4 +56,27 @@ func (self *Class) IsAnnotation() bool {
 }
 func (self *Class) IsEnum() bool {
 	return 0 != self.accessFlags&ACC_ENUM
+}
+
+func (self *Class) isAccessibleTo(other *Class) bool {
+	return self.IsPublic() || self.getPackageName() == self.getPackageName()
+}
+
+func (self *Class) getPackageName() string {
+	if i := strings.LastIndex(self.name, "/"); i >= 0 {
+		return self.name[:i]
+	}
+	return ""
+}
+
+func (self *Class) isSubClassOf(super *Class) bool {
+	return super.name == self.superClassName
+}
+
+func (self *Class) ConstantPool() *ConstantPool {
+	return self.constantPool
+}
+
+func (self *Class) NewObject() *Object {
+	return newObject(self)
 }

@@ -1,20 +1,24 @@
 package rtda
 
-import ()
+import (
+	"jvm/rtda/heap"
+)
 
 type Frame struct {
 	lower        *Frame
 	localVars    LocalVars
 	operandStack *OperandStack
 	thread       *Thread
+	method       *heap.Method
 	nextPC       int
 }
 
-func NewFrame(thread *Thread, maxLocals, maxStack uint) *Frame {
+func NewFrame(thread *Thread, method *heap.Method) *Frame {
 	return &Frame{
-		localVars:    newLocalVars(maxLocals),
-		operandStack: newOperandStack(maxStack),
+		localVars:    newLocalVars(method.MaxLocals()),
+		operandStack: newOperandStack(method.MaxStack()),
 		thread:       thread,
+		method:       method,
 	}
 }
 
@@ -28,6 +32,10 @@ func (self *Frame) OperandStack() *OperandStack {
 
 func (self *Frame) Thread() *Thread {
 	return self.thread
+}
+
+func (self *Frame) Method() *heap.Method {
+	return self.method
 }
 
 func (self *Frame) NextPC() int {
