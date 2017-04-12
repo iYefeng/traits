@@ -46,3 +46,7 @@ func (self *Field) IsStatic() bool {
 func (self *Field) IsFinal() bool {
 	return 0 == self.accessFlags&ACC_FINAL
 }
+
+func (self *Field) Class() *Class {
+	return self.class
+}

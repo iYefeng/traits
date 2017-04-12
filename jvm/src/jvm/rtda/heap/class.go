@@ -80,3 +80,22 @@ func (self *Class) ConstantPool() *ConstantPool {
 func (self *Class) NewObject() *Object {
 	return newObject(self)
 }
+
+func (self *Class) GetMainMethod() *Method {
+	return self.getStaticMethod("main", "([Ljava/lang/String;)V")
+}
+
+func (self *Class) getStaticMethod(name, descriptor string) *Method {
+	for _, method := range self.methods {
+		if method.IsStatic() {
+			if method.name == name && method.descriptor == descriptor {
+				return method
+			}
+		}
+	}
+	return nil
+}
+
+func (self *Class) StaticVars() Slots {
+	return self.staticVars
+}

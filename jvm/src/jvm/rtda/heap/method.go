@@ -41,3 +41,11 @@ func (self *Method) MaxStack() uint {
 func (self *Method) Class() *Class {
 	return self.class
 }
+
+func (self *Method) Code() []byte {
+	return self.code
+}
+
+func (self *Method) Name() string {
+	return self.name
+}
