@@ -13,3 +13,11 @@ func newObject(class *Class) *Object {
 		fields: newSlots(class.instanceSlotCount),
 	}
 }
+
+func (self *Object) Fields() Slots {
+	return self.fields
+}
+
+func (self *Object) IsInstanceOf(class *Class) bool {
+	return class.isAssignableFrom(self.class)
+}

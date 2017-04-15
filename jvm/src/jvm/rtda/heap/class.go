@@ -69,10 +69,6 @@ func (self *Class) getPackageName() string {
 	return ""
 }
 
-func (self *Class) isSubClassOf(super *Class) bool {
-	return super.name == self.superClassName
-}
-
 func (self *Class) ConstantPool() *ConstantPool {
 	return self.constantPool
 }

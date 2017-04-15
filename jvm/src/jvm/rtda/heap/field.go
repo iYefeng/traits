@@ -39,14 +39,6 @@ func (self *Field) isLongOrDouble() bool {
 	return self.descriptor == "J" || self.descriptor == "D"
 }
 
-func (self *Field) IsStatic() bool {
-	return 0 == self.accessFlags&ACC_STATIC
-}
-
-func (self *Field) IsFinal() bool {
-	return 0 == self.accessFlags&ACC_FINAL
-}
-
 func (self *Field) Class() *Class {
 	return self.class
 }
