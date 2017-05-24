@@ -59,10 +59,10 @@ func (self *Class) IsEnum() bool {
 }
 
 func (self *Class) isAccessibleTo(other *Class) bool {
-	return self.IsPublic() || self.getPackageName() == self.getPackageName()
+	return self.IsPublic() || self.GetPackageName() == self.GetPackageName()
 }
 
-func (self *Class) getPackageName() string {
+func (self *Class) GetPackageName() string {
 	if i := strings.LastIndex(self.name, "/"); i >= 0 {
 		return self.name[:i]
 	}
@@ -94,4 +94,8 @@ func (self *Class) getStaticMethod(name, descriptor string) *Method {
 
 func (self *Class) StaticVars() Slots {
 	return self.staticVars
+}
+
+func (self *Class) SuperClass() *Class {
+	return self.superClass
 }

@@ -2,7 +2,7 @@ package heap
 
 import ()
 
-func lookupMethodInClass(class *Class, name, descriptor string) *Method {
+func LookupMethodInClass(class *Class, name, descriptor string) *Method {
 	for c := class; c != nil; c = c.superClass {
 		for _, method := range c.methods {
 			if method.name == name && method.descriptor == descriptor {
