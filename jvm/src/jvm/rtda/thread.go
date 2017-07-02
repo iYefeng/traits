@@ -42,3 +42,7 @@ func (self *Thread) CurrentFrame() *Frame {
 func (self *Thread) TopFrame() *Frame {
 	return self.stack.top()
 }
+
+func (self *Thread) IsStackEmpty() bool {
+	return self.stack.IsEmpty()
+}

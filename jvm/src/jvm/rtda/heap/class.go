@@ -33,6 +33,10 @@ func newClass(cf *classfile.ClassFile) *Class {
 	return class
 }
 
+func (self *Class) Name() string {
+	return self.name
+}
+
 func (self *Class) IsPublic() bool {
 	return 0 != self.accessFlags&ACC_PUBLIC
 }
