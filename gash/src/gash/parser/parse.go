@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 )
 
 var cmdline string
@@ -37,5 +38,11 @@ func parseCommand() int {
 }
 
 func executeCommand() int {
+	cmd := exec.Command("sh", "-c", cmdline)
+	out, err := cmd.Output()
+	if err != nil {
+		panic("exec error")
+	}
+	fmt.Println(string(out))
 	return 0
 }
