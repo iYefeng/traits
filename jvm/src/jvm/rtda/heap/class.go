@@ -116,3 +116,12 @@ func (self *Class) StartInit() {
 func (self *Class) GetClinitMethod() *Method {
 	return self.getStaticMethod("<clinit>", "()V")
 }
+
+func (self *Class) Loader() *ClassLoader {
+	return self.loader
+}
+
+func (self *Class) ArrayClass() *Class {
+	arrayClassName := getArrayClassName(self.name)
+	return self.loader.LoadClass(arrayClassName)
+}
