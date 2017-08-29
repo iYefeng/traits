@@ -27,3 +27,26 @@ var primitiveTypes = map[string]string{
 	"float":   "F",
 	"double":  "D",
 }
+
+func getComponentClassName(className string) string {
+	if className[0] == '[' {
+		componentTypeDescriptor := className[1:]
+		return toClassName(componentTypeDescriptor)
+	}
+	panic("Not array: " + className)
+}
+
+func toClassName(descriptor string) string {
+	if descriptor[0] == '[' {
+		return descriptor
+	}
+	if descriptor[0] == 'L' { // Object
+		return descriptor[1 : len(descriptor)-1]
+	}
+	for className, d := range primitiveTypes {
+		if d == descriptor {
+			return className
+		}
+	}
+	panic("Incalid descriptor: " + descriptor)
+}
