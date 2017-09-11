@@ -1,7 +1,6 @@
 package base
 
 import (
-	"fmt"
 	"jvm/rtda"
 	"jvm/rtda/heap"
 )
@@ -11,6 +10,8 @@ func InvokeMethod(invokeFrame *rtda.Frame, method *heap.Method) {
 	newFrame := thread.NewFrame(method)
 	thread.PushFrame(newFrame)
 
+	//fmt.Printf("%s is native = %t\n", method.Name(), method.IsNative())
+
 	argSlotSlot := int(method.ArgSlotCount())
 	if argSlotSlot > 0 {
 		for i := argSlotSlot - 1; i >= 0; i-- {
@@ -18,13 +19,13 @@ func InvokeMethod(invokeFrame *rtda.Frame, method *heap.Method) {
 			newFrame.LocalVars().SetSlot(uint(i), slot)
 		}
 	}
-	// hack!
-	if method.IsNative() {
-		if method.Name() == "registerNatives" {
-			thread.PopFrame()
-		} else {
-			panic(fmt.Sprintf("native method: %v.%v%v\n",
-				method.Class().Name(), method.Name(), method.Descriptor()))
-		}
-	}
+	//	// hack!
+	//	if method.IsNative() {
+	//		if method.Name() == "registerNatives" {
+	//			thread.PopFrame()
+	//		} else {
+	//			panic(fmt.Sprintf("native method: %v.%v%v\n",
+	//				method.Class().Name(), method.Name(), method.Descriptor()))
+	//		}
+	//	}
 }
