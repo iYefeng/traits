@@ -11,6 +11,7 @@ import (
 	. "jvm/instructions/loads"
 	. "jvm/instructions/math"
 	. "jvm/instructions/references"
+	. "jvm/instructions/reserved"
 	. "jvm/instructions/stack"
 	. "jvm/instructions/stores"
 )
@@ -164,7 +165,7 @@ var (
 	// athrow        = &ATHROW{}
 	// monitorenter  = &MONITOR_ENTER{}
 	// monitorexit   = &MONITOR_EXIT{}
-	// invoke_native = &INVOKE_NATIVE{}
+	invoke_native = &INVOKE_NATIVE{}
 )
 
 func NewInstruction(opcode byte) base.Instruction {
@@ -541,8 +542,8 @@ func NewInstruction(opcode byte) base.Instruction {
 		return &INVOKE_STATIC{}
 	case 0xb9:
 		return &INVOKE_INTERFACE{}
-		// case 0xba:
-		//  return &INVOKE_DYNAMIC{}
+	//case 0xba:
+	//	return &INVOKE_DYNAMIC{}
 	case 0xbb:
 		return &NEW{}
 	case 0xbc:
@@ -574,7 +575,8 @@ func NewInstruction(opcode byte) base.Instruction {
 	// case 0xc9:
 	//  return &JSR_W{}
 	// case 0xca: breakpoint
-	// case 0xfe: impdep1
+	case 0xfe:
+		return invoke_native
 	// case 0xff: impdep2
 	default:
 		panic(fmt.Errorf("Unsupported opcode: 0x%x!", opcode))

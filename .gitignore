@@ -13,9 +13,10 @@ algorithm/tfidf/data/
 algorithm/lda/data/
 algorithm/decisiontree/models/
 algorithm/decisiontree/data/
-nodejs/
+nodejs/angular
 jupyter/*_checkpoints*
 jupyter/*/*_checkpoints*
 mvc_learn/out
 mvc_learn/.idea
 mvc_learn/target
+markdown-editor/
